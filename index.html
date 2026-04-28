@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AX Control Tower - AI Transformation Platform</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: 'var(--accent)', 
+                        secondary: 'var(--bg-secondary)',
+                        accent: 'var(--accent)',
+                        bgDark: 'var(--bg-primary)',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    borderRadius: {
+                        '2xl': '1rem',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #7c3aed;
+            --glass-bg: rgba(30, 41, 59, 0.7);
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        [data-theme="white"] {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --accent: #7c3aed;
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --border-color: rgba(15, 23, 42, 0.1);
+        }
+
+        [data-theme="gray-sky"] {
+            --bg-primary: #334155;
+            --bg-secondary: #475569;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --accent: #38bdf8;
+            --glass-bg: rgba(71, 85, 105, 0.7);
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.1);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(124, 58, 237, 0.3);
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(124, 58, 237, 0.5);
+        }
+        .sidebar-item:hover {
+            background: rgba(124, 58, 237, 0.15);
+            color: #c084fc;
+        }
+        .sidebar-item.active {
+            background: linear-gradient(to right, rgba(124, 58, 237, 0.2), transparent);
+            border-left: 4px solid #7c3aed;
+            color: #c084fc;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased">
+    <div id="app" class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="w-64 glass border-r border-slate-800 flex flex-col hidden md:flex">
+            <div class="p-6 flex items-center gap-3">
+                <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
+                    <i data-lucide="zap" class="text-white w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight">AX Tower</h1>
+                    <p class="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">Control Center</p>
+                </div>
+            </div>
+
+            <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar">
+                <a href="#" onclick="navigate('dashboard')" class="sidebar-item active flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200">
+                    <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                    <span class="font-medium">대시보드</span>
+                </a>
+                <a href="#" onclick="navigate('security')" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-slate-400">
+                    <i data-lucide="shield-check" class="w-5 h-5"></i>
+                    <span class="font-medium">보안관리</span>
+                </a>
+                <a href="#" onclick="navigate('tasks')" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-slate-400">
+                    <i data-lucide="kanban" class="w-5 h-5"></i>
+                    <span class="font-medium">과제관리</span>
+                </a>
+                <a href="#" onclick="navigate('templates')" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-slate-400">
+                    <i data-lucide="copy" class="w-5 h-5"></i>
+                    <span class="font-medium">Template</span>
+                </a>
+                <div class="pt-6 pb-2 px-4 text-[10px] text-slate-500 uppercase font-bold tracking-widest">Resources</div>
+                <a href="#" onclick="navigate('helpdesk')" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-slate-400">
+                    <i data-lucide="message-square" class="w-5 h-5"></i>
+                    <span class="font-medium">헬프데스크 (RAG)</span>
+                </a>
+                <a href="#" onclick="navigate('database')" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-slate-400">
+                    <i data-lucide="database" class="w-5 h-5"></i>
+                    <span class="font-medium">베스트 과제 DB</span>
+                </a>
+                
+                <div class="pt-4 pb-2 px-4 text-[10px] text-slate-500 uppercase font-bold tracking-widest">AI Management</div>
+                <div class="space-y-1">
+                    <button onclick="toggleSubmenu('ai-resources')" class="sidebar-item w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 text-slate-400">
+                        <div class="flex items-center gap-3">
+                            <i data-lucide="cpu" class="w-5 h-5"></i>
+                            <span class="font-medium">AI 리소스</span>
+                        </div>
+                        <i data-lucide="chevron-down" id="chevron-ai-resources" class="w-4 h-4 transition-transform duration-200"></i>
+                    </button>
+                    <div id="submenu-ai-resources" class="hidden pl-10 space-y-1">
+                        <a href="#" onclick="navigate('resource-models')" class="block py-2 text-sm text-slate-500 hover:text-primary transition-colors">1. 유료 모델/서비스</a>
+                        <a href="#" onclick="navigate('resource-users')" class="block py-2 text-sm text-slate-500 hover:text-primary transition-colors">2. 유료계정 사용자</a>
+                        <a href="#" onclick="navigate('resource-infra')" class="block py-2 text-sm text-slate-500 hover:text-primary transition-colors">3. Server/DB 현황</a>
+                        <a href="#" onclick="navigate('resource-urls')" class="block py-2 text-sm text-slate-500 hover:text-primary transition-colors">4. 접속가능 서비스/URL</a>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="p-6 border-t border-slate-800">
+                <div class="flex items-center gap-3 p-3 bg-slate-800/50 rounded-2xl">
+                    <div class="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center text-accent">
+                        <i data-lucide="user" class="w-5 h-5"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-semibold truncate">Vibe Master</p>
+                        <p class="text-[10px] text-slate-500 truncate">Admin Account</p>
+                    </div>
+                    <i data-lucide="log-out" class="w-4 h-4 text-slate-500 cursor-pointer hover:text-red-400 transition-colors"></i>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+            <!-- Header -->
+            <header class="h-16 glass border-b border-slate-800 flex items-center justify-between px-8 z-10">
+                <div class="flex items-center gap-4">
+                    <h2 id="page-title" class="text-lg font-semibold">대시보드</h2>
+                    <div class="px-2 py-1 bg-green-500/10 border border-green-500/20 rounded text-[10px] text-green-400 font-bold uppercase tracking-wider">System Live</div>
+                </div>
+                <div class="flex items-center gap-6">
+                    <div class="relative hidden sm:block">
+                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+                        <input type="text" placeholder="Search resources..." class="pl-10 pr-4 py-2 bg-slate-800/50 border border-slate-700 rounded-xl text-sm focus:outline-none focus:border-primary/50 transition-all w-64">
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <!-- Theme Switcher -->
+                        <div class="flex bg-slate-800/50 p-1 rounded-xl border border-slate-700/50">
+                            <button onclick="setTheme('dark')" id="theme-dark" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-700 transition-all text-slate-400" title="Dark Mode">
+                                <i data-lucide="moon" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="setTheme('white')" id="theme-white" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-700 transition-all text-slate-400" title="White Mode">
+                                <i data-lucide="sun" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="setTheme('gray-sky')" id="theme-gray-sky" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-700 transition-all text-slate-400" title="Gray & Sky Blue Mode">
+                                <i data-lucide="palette" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                        <button class="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-slate-800 transition-colors relative">
+                            <i data-lucide="bell" class="w-5 h-5"></i>
+                            <span class="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-bgDark"></span>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div id="page-container" class="flex-1 overflow-y-auto p-8 custom-scrollbar bg-slate-900/30">
+                <!-- Content will be injected here -->
+            </div>
+        </main>
+
+        <!-- Security Pledge Modal -->
+        <div id="security-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-bgDark/80 backdrop-blur-md">
+            <div class="w-full max-w-2xl glass rounded-3xl overflow-hidden animate-fade-in shadow-2xl shadow-primary/10">
+                <div class="p-8 space-y-6 text-center">
+                    <div class="w-20 h-20 bg-primary/20 rounded-3xl mx-auto flex items-center justify-center text-primary border border-primary/30">
+                        <i data-lucide="shield-alert" class="w-10 h-10"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-3xl font-bold tracking-tight">AI 전환(AX) 보안 서약</h3>
+                        <p class="mt-2 text-slate-400">안전한 기업 AI 생태계 조성을 위해 보안 규정 준수가 필요합니다.</p>
+                    </div>
+                    
+                    <div class="text-left space-y-4 p-6 bg-slate-800/50 rounded-2xl border border-slate-700/50 max-h-60 overflow-y-auto custom-scrollbar text-slate-300 text-sm">
+                        <p>1. 모든 AI 모델 사용 시 회사 기밀 정보 및 개인정보를 입력하지 않습니다.</p>
+                        <p>2. AI가 생성한 결과물은 반드시 본인의 검증을 거친 후 업무에 활용합니다.</p>
+                        <p>3. AI 활용 중 발생하는 보안 사고 및 의심 징후는 즉시 보안 관리자에게 보고합니다.</p>
+                        <p>4. 승인되지 않은 모델의 무단 사용 및 사외 유출을 엄격히 금지합니다.</p>
+                        <p>5. AI 결과물의 저작권 및 지적재산권 관련 규정을 준수합니다.</p>
+                        <p>6. 본 플랫폼을 통해 제공되는 모든 데이터와 리소스는 업무 외 목적으로 사용하지 않습니다.</p>
+                    </div>
+
+                    <div class="flex items-center gap-3 justify-center">
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <input type="checkbox" id="pledge-check" class="w-5 h-5 rounded border-slate-700 bg-slate-800 text-primary focus:ring-primary/20">
+                            <span class="text-sm font-medium text-slate-300 group-hover:text-white transition-colors">위 모든 보안 지침을 숙지하였으며, 이를 준수할 것을 서약합니다.</span>
+                        </label>
+                    </div>
+
+                    <div class="pt-4 flex gap-4">
+                        <button onclick="rejectPledge()" class="flex-1 py-4 px-6 rounded-2xl bg-slate-800 hover:bg-slate-700 font-semibold transition-all">거부</button>
+                        <button onclick="acceptPledge()" id="accept-btn" class="flex-1 py-4 px-6 rounded-2xl bg-primary hover:bg-primary/80 font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed" disabled>서약 및 시작하기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Template Edit Modal -->
+    <div id="template-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[100] hidden items-center justify-center p-4">
+        <div class="glass w-full max-w-lg p-8 rounded-3xl space-y-6 shadow-2xl border-primary/20">
+            <div class="flex justify-between items-center">
+                <h3 id="modal-title" class="text-xl font-bold">템플릿 등록/수정</h3>
+                <button onclick="closeTemplateModal()" class="text-slate-500 hover:text-white transition-colors">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <input type="hidden" id="edit-id">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">제목</label>
+                    <input type="text" id="modal-tpl-title" placeholder="템플릿 제목을 입력하세요" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary transition-all">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">설명</label>
+                    <textarea id="modal-tpl-desc" placeholder="템플릿에 대한 짧은 설명을 입력하세요" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary transition-all h-20 resize-none"></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">카테고리</label>
+                        <select id="modal-tpl-cat" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary transition-all">
+                            <option value="HR">HR</option>
+                            <option value="Marketing">Marketing</option>
+                            <option value="Dev">Dev</option>
+                            <option value="Legal">Legal</option>
+                            <option value="General">General</option>
+                            <option value="Persona">Persona</option>
+                            <option value="Logic">Logic</option>
+                            <option value="Format">Format</option>
+                            <option value="Tone">Tone</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">상황/태그</label>
+                        <input type="text" id="modal-tpl-situation" placeholder="예: 채용, 분석" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary transition-all">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">프롬프트 내용</label>
+                    <textarea id="modal-tpl-prompt" placeholder="AI에게 전달할 프롬프트 전문을 입력하세요" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary transition-all h-40 resize-none font-mono"></textarea>
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="closeTemplateModal()" class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 rounded-xl font-bold transition-all">취소</button>
+                <button onclick="saveTemplateAction()" class="flex-1 py-3 bg-primary hover:bg-primary/80 text-white rounded-xl font-bold transition-all shadow-lg shadow-primary/20">저장하기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Confirm Modal -->
+    <div id="confirm-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[110] hidden items-center justify-center p-4">
+        <div class="glass w-full max-w-sm p-8 rounded-3xl space-y-6 text-center shadow-2xl border-red-500/20">
+            <div class="w-16 h-16 bg-red-500/20 rounded-full mx-auto flex items-center justify-center text-red-500">
+                <i data-lucide="alert-circle" class="w-8 h-8"></i>
+            </div>
+            <div>
+                <h4 class="text-xl font-bold">정말 삭제하시겠습니까?</h4>
+                <p class="text-sm text-slate-400 mt-2">삭제된 템플릿은 복구할 수 없습니다.</p>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="closeConfirmModal()" class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 rounded-xl font-bold transition-all">취소</button>
+                <button id="confirm-yes-btn" class="flex-1 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition-all shadow-lg shadow-red-500/20">삭제하기</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State Management
+        let currentState = {
+            currentPage: 'dashboard',
+            isPledged: false,
+            theme: localStorage.getItem('ax_theme') || 'dark',
+            templateTab: 'System',
+            templateFilter: 'All',
+            templateSearch: '',
+            chatHistory: [
+                { role: 'ai', message: '안녕하세요! AX Control Tower 헬프데스크입니다. 사내 규정이나 AI 활용 지침에 대해 궁금한 점을 물어보세요.', sources: [] }
+            ]
+        };
+
+        // Knowledge Base for Mock RAG
+        const knowledgeBase = [
+            { id: 1, category: 'Security', title: '사내 AI 활용 보안 지침', content: '직원은 승인되지 않은 외부 AI 툴에 기밀 데이터를 입력해서는 안 됩니다. 모든 프롬프트는 자가진단 엔진을 거쳐야 하며, 개인정보 포함 시 즉시 마킹 처리가 필요합니다.', tags: ['보안', 'AI', '프롬프트'] },
+            { id: 2, category: 'HR', title: '유연 근무제 운영 규정', content: '우리 회사는 오전 8시~10시 사이 자율 출근하여 8시간 근무하는 유연 근무제를 시행하고 있습니다. 코어 타임은 오후 2시~4시입니다.', tags: ['출퇴근', '근무시간', '복지'] },
+            { id: 3, category: 'General', title: 'AX 프로젝트 예산 신청 방법', desc: 'AI 도입 과제에 대한 예산 신청은 그룹웨어 내 AX 전용 결재 라인을 통해 진행하며, 예상 ROI 보고서를 반드시 첨부해야 합니다.', tags: ['예산', '결재', 'ROI'] }
+        ];
+
+        // Template Data Re-organized
+        const defaultTemplates = [
+            // 1. System Prompts (Personas)
+            { id: 101, type: 'System', category: 'Persona', title: '시니어 풀스택 개발자', desc: '기술적 해결책뿐만 아니라 코드의 효율성, 보안, 유지보수성을 최우선으로 고려하는 전문가 페르소나입니다.', prompt: '너는 20년 경력의 시니어 풀스택 개발자야. 내가 제시하는 문제에 대해 단순히 작동하는 코드를 넘어, 클린 코드 원칙과 보안 베스트 프랙티스를 준수하는 최적의 솔루션을 제안해줘.', situation: '기술 자문' },
+            { id: 102, type: 'System', category: 'Persona', title: '전략 마케팅 컨설턴트', desc: '데이터에 기반하여 시장의 트렌드를 읽고, 타겟 고객의 심리를 꿰뚫는 혁신적인 마케팅 전략가입니다.', prompt: '너는 글로벌 광고 대행사 출신의 전략 마케팅 컨설턴트야. 모든 제안은 시장 데이터와 고객 심리 분석에 기반해야 하며, 창의적이면서도 실행 가능한 액션 플랜을 제시해줘.', situation: '전략 수립' },
+            { id: 103, type: 'System', category: 'Persona', title: 'HR 조직문화 전문가', desc: '직원들의 경험을 설계하고 건강한 조직 문화를 구축하여 인재의 성장을 돕는 HR 전문가입니다.', prompt: '너는 긍정적인 조직 문화를 설계하는 HR 전문가야. 직원들의 심리적 안정감을 고려하면서도 목표 달성을 위한 성과 중심의 피드백과 소통 방식을 제안해줘.', situation: '조직 관리' },
+            
+            // 2. Instruction Prompts (Guidelines)
+            { id: 201, type: 'Instruction', category: 'Logic', title: '단계별 추론 (CoT)', desc: '복잡한 문제에 대해 AI가 논리적인 단계를 거쳐 사고하도록 유도하여 답변의 정확도를 높입니다.', prompt: '이 문제를 해결하기 위해 먼저 단계별로(Step-by-step) 논리적인 추론 과정을 설명하고, 그 후에 최종 결론을 도출해줘.', situation: '논리 추론' },
+            { id: 202, type: 'Instruction', category: 'Format', title: '마크다운 형식 지정', desc: '결과물을 표, 리스트, 코드 블록 등 구조화된 마크다운 형식으로 출력하도록 강제합니다.', prompt: '답변은 반드시 마크다운(Markdown) 형식을 사용해줘. 핵심 내용은 표(Table)로 정리하고, 세부 사항은 불렛 포인트로 요약해.', situation: '형식 지정' },
+            { id: 203, type: 'Instruction', category: 'Tone', title: '전문적인 비즈니스 톤', desc: '격식 있고 정중한 비즈니스 영어나 한국어 톤을 유지하도록 지시합니다.', prompt: '모든 답변은 격식 있는 비즈니스 톤앤매너를 유지해줘. 불필요한 수식어는 배제하고 간결하고 명확한 문장을 사용해.', situation: '톤앤매너' },
+
+            // 3. User Prompts (Job Specific - Existing)
+            { id: 1, type: 'User', category: 'HR', title: 'AI 면접 질문 생성기', desc: '직무 기술서를 바탕으로 핵심 역량을 검증할 수 있는 맞춤형 면접 질문을 생성합니다.', prompt: '다음 직무 기술서를 분석하여 후보자의 핵심 역량을 검증할 수 있는 면접 질문 5개를 생성해줘. [직무 기술서 입력]', situation: '채용' },
+            { id: 2, type: 'User', category: 'Marketing', title: 'SNS 광고 카피 최적화', desc: '타겟 고객의 페르소나를 분석하여 클릭률을 높이는 감각적인 광고 카피를 제안합니다.', prompt: '우리 제품 [제품명]의 타겟인 [페르소나]에게 소구할 수 있는 인스타그램 광고 카피 3가지를 작성해줘. 혜택 위주로 강조해줘.', situation: '콘텐츠 제작' },
+            { id: 3, type: 'User', category: 'Dev', title: '코드 보안 취약점 분석', desc: '작성된 소스코드에서 보안 취약점 및 하드코딩된 정보를 탐지하여 개선 방안을 제시합니다.', prompt: '아래 코드에서 보안 취약점, 민감 정보 유출 가능성, 하드코딩된 API Key 등이 있는지 분석하고 개선된 코드를 제안해줘. [코드 입력]', situation: '개발/보안' },
+            { id: 4, type: 'User', category: 'Legal', title: '계약서 독소조항 탐지', desc: '복잡한 계약 문구 중 회사에 불리하게 작용할 수 있는 독소조항을 찾아내고 설명합니다.', prompt: '이 계약서 초안에서 우리 회사에 일방적으로 불리한 독소조항이나 법적 리스크가 있는 문구를 찾아내고, 어떻게 수정하면 좋을지 제안해줘. [계약서 내용]', situation: '법무 검토' },
+            { id: 5, type: 'User', category: 'General', title: '주간 업무 보고 자동 요약', desc: '나열된 업무 리스트를 바탕으로 성과 중심의 깔끔한 주간 보고서 초안을 작성합니다.', prompt: '이번 주 내가 수행한 다음 업무 리스트를 바탕으로, 성과 위주의 주간 보고서를 작성해줘. [업무 리스트]', situation: '문서 작성' }
+        ];
+
+        let templates = JSON.parse(localStorage.getItem('ax_templates')) || defaultTemplates;
+
+        function saveTemplates() {
+            localStorage.setItem('ax_templates', JSON.stringify(templates));
+        }
+
+        // Theme Management
+        function setTheme(theme) {
+            currentState.theme = theme;
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('ax_theme', theme);
+            
+            // Update UI
+            document.querySelectorAll('[id^="theme-"]').forEach(btn => {
+                btn.classList.remove('bg-primary', 'text-white');
+                btn.classList.add('text-slate-400');
+            });
+            const activeBtn = document.getElementById(`theme-${theme}`);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-primary', 'text-white');
+                activeBtn.classList.remove('text-slate-400');
+            }
+        }
+
+        // Apply initial theme
+        setTheme(currentState.theme);
+
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Security Pledge Logic
+        const pledgeCheck = document.getElementById('pledge-check');
+        const acceptBtn = document.getElementById('accept-btn');
+        const securityModal = document.getElementById('security-modal');
+
+        pledgeCheck.addEventListener('change', (e) => {
+            acceptBtn.disabled = !e.target.checked;
+        });
+
+        function acceptPledge() {
+            currentState.isPledged = true;
+            securityModal.classList.add('hidden');
+            localStorage.setItem('ax_pledge_accepted', 'true');
+            renderPage('dashboard');
+        }
+
+        function rejectPledge() {
+            alert('보안 서약에 동의하셔야 서비스 이용이 가능합니다.');
+        }
+
+        // Check for existing pledge
+        if (localStorage.getItem('ax_pledge_accepted') === 'true') {
+            currentState.isPledged = true;
+            securityModal.classList.add('hidden');
+            renderPage('dashboard');
+        }
+
+        // Routing Logic
+        function navigate(page) {
+            currentState.currentPage = page;
+            
+            // Update UI Sidebar
+            document.querySelectorAll('.sidebar-item').forEach(item => {
+                item.classList.remove('active');
+                item.classList.add('text-slate-400');
+            });
+            event.currentTarget.classList.add('active');
+            event.currentTarget.classList.remove('text-slate-400');
+            
+            // Update Header Title
+            const titles = {
+                'dashboard': '대시보드',
+                'security': '보안관리',
+                'tasks': '과제관리',
+                'templates': 'Template Hub',
+                'database': '베스트 과제 DB',
+                'helpdesk': '헬프데스크 (RAG)',
+                'resource-models': '유료 모델/서비스',
+                'resource-users': '유료계정 사용자',
+                'resource-infra': 'Server/DB 현황',
+                'resource-urls': '접속가능 서비스/URL'
+            };
+            document.getElementById('page-title').innerText = titles[page] || '대시보드';
+
+            renderPage(page);
+        }
+
+        function renderPage(page) {
+            const container = document.getElementById('page-container');
+            container.innerHTML = '';
+            
+            const wrapper = document.createElement('div');
+            wrapper.className = 'animate-fade-in space-y-8';
+            
+            if (page === 'dashboard') {
+                wrapper.innerHTML = `
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="glass p-6 rounded-3xl space-y-4">
+                            <div class="flex justify-between items-start">
+                                <div class="p-3 bg-primary/10 rounded-2xl text-primary">
+                                    <i data-lucide="zap" class="w-6 h-6"></i>
+                                </div>
+                                <span class="text-xs font-bold text-green-400">+12%</span>
+                            </div>
+                            <div>
+                                <p class="text-slate-400 text-sm font-medium">진행 중인 AX 과제</p>
+                                <h4 class="text-3xl font-bold">24</h4>
+                            </div>
+                        </div>
+                        <div class="glass p-6 rounded-3xl space-y-4">
+                            <div class="flex justify-between items-start">
+                                <div class="p-3 bg-accent/10 rounded-2xl text-accent">
+                                    <i data-lucide="users" class="w-6 h-6"></i>
+                                </div>
+                                <span class="text-xs font-bold text-green-400">+5%</span>
+                            </div>
+                            <div>
+                                <p class="text-slate-400 text-sm font-medium">활성 AI 사용자</p>
+                                <h4 class="text-3xl font-bold">156</h4>
+                            </div>
+                        </div>
+                        <div class="glass p-6 rounded-3xl space-y-4">
+                            <div class="flex justify-between items-start">
+                                <div class="p-3 bg-orange-500/10 rounded-2xl text-orange-500">
+                                    <i data-lucide="clock" class="w-6 h-6"></i>
+                                </div>
+                                <span class="text-xs font-bold text-orange-400">Total</span>
+                            </div>
+                            <div>
+                                <p class="text-slate-400 text-sm font-medium">평균 절감 시간</p>
+                                <h4 class="text-3xl font-bold">1.2h</h4>
+                            </div>
+                        </div>
+                        <div class="glass p-6 rounded-3xl space-y-4">
+                            <div class="flex justify-between items-start">
+                                <div class="p-3 bg-green-500/10 rounded-2xl text-green-500">
+                                    <i data-lucide="trending-up" class="w-6 h-6"></i>
+                                </div>
+                                <span class="text-xs font-bold text-green-400">+8.4%</span>
+                            </div>
+                            <div>
+                                <p class="text-slate-400 text-sm font-medium">전사 AX 달성률</p>
+                                <h4 class="text-3xl font-bold">68%</h4>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2 glass p-8 rounded-3xl h-[400px] flex flex-col">
+                            <div class="flex justify-between items-center mb-6">
+                                <h4 class="text-xl font-bold">월별 AX 활성화 현황</h4>
+                                <div class="flex gap-2">
+                                    <button class="px-3 py-1 bg-slate-800 rounded-lg text-xs font-medium border border-slate-700 text-slate-400">전체</button>
+                                    <button class="px-3 py-1 bg-primary/20 rounded-lg text-xs font-medium border border-primary/30 text-primary">최근 6개월</button>
+                                </div>
+                            </div>
+                            <div class="flex-1 flex items-end gap-4 px-2">
+                                ${[40, 65, 45, 80, 55, 95].map((val, i) => `
+                                    <div class="flex-1 flex flex-col items-center gap-3">
+                                        <div class="w-full bg-slate-800/50 rounded-t-xl relative group overflow-hidden" style="height: ${val}%">
+                                            <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-primary to-accent transition-all duration-500 h-0 group-hover:h-full opacity-60"></div>
+                                            <div class="absolute inset-x-0 bottom-0 bg-primary h-[${val}%] opacity-30"></div>
+                                        </div>
+                                        <span class="text-[10px] text-slate-500 font-bold">${['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'][i]}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        <div class="glass p-8 rounded-3xl flex flex-col">
+                            <h4 class="text-xl font-bold mb-6">최근 보안 이슈</h4>
+                            <div class="space-y-4">
+                                <div class="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex gap-4">
+                                    <i data-lucide="alert-triangle" class="text-red-400 w-5 h-5 flex-shrink-0"></i>
+                                    <div>
+                                        <p class="text-sm font-bold text-red-100">기밀 데이터 유출 시도 감지</p>
+                                        <p class="text-xs text-red-400/80 mt-1">마케팅팀 외부 툴 사용 차단</p>
+                                    </div>
+                                </div>
+                                <div class="p-4 bg-slate-800/50 border border-slate-700/50 rounded-2xl flex gap-4">
+                                    <i data-lucide="info" class="text-accent w-5 h-5 flex-shrink-0"></i>
+                                    <div>
+                                        <p class="text-sm font-bold">시스템 정기 점검 안내</p>
+                                        <p class="text-xs text-slate-500 mt-1">오늘 22:00 ~ 23:00 (1시간)</p>
+                                    </div>
+                                </div>
+                                <div class="p-4 bg-slate-800/50 border border-slate-700/50 rounded-2xl flex gap-4">
+                                    <i data-lucide="check-circle" class="text-green-400 w-5 h-5 flex-shrink-0"></i>
+                                    <div>
+                                        <p class="text-sm font-bold">보안 서약 완료율 98%</p>
+                                        <p class="text-xs text-slate-500 mt-1">전사 목표 100% 달성 임박</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="mt-auto w-full py-3 bg-slate-800 hover:bg-slate-700 rounded-xl text-sm font-semibold transition-all">전체 로그 보기</button>
+                        </div>
+                    </div>
+                `;
+            } else if (page === 'tasks') {
+                wrapper.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h3 class="text-2xl font-bold">AX 과제 트래커</h3>
+                            <p class="text-slate-400 text-sm">진행 중인 AI 도입 프로젝트 현황을 칸반 보드에서 관리하세요.</p>
+                        </div>
+                        <button class="px-5 py-2.5 bg-primary hover:bg-primary/80 rounded-xl font-bold flex items-center gap-2 transition-all">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            새 과제 등록
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <!-- To Do -->
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between px-2">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-2 h-2 rounded-full bg-slate-400"></div>
+                                    <span class="font-bold text-slate-300">To Do</span>
+                                    <span class="px-2 py-0.5 bg-slate-800 rounded text-[10px] text-slate-500 font-bold">3</span>
+                                </div>
+                                <i data-lucide="more-horizontal" class="w-4 h-4 text-slate-600 cursor-pointer"></i>
+                            </div>
+                            <div class="space-y-4">
+                                ${renderTaskCard('HR 채용 봇 고도화', 'AI 기반 이력서 스크리닝 엔진 업데이트', 'High', '3 days left')}
+                                ${renderTaskCard('재무제표 자동 분석', 'PDF 데이터 추출 및 이상 징후 탐지', 'Medium', '1 week left')}
+                            </div>
+                        </div>
+
+                        <!-- In Progress -->
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between px-2">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+                                    <span class="font-bold text-primary">In Progress</span>
+                                    <span class="px-2 py-0.5 bg-primary/10 rounded text-[10px] text-primary font-bold">2</span>
+                                </div>
+                                <i data-lucide="more-horizontal" class="w-4 h-4 text-slate-600 cursor-pointer"></i>
+                            </div>
+                            <div class="space-y-4">
+                                ${renderTaskCard('법무 문서 검토 자동화', 'Gemini API 기반 계약서 독소조항 분석', 'High', 'Ongoing')}
+                                ${renderTaskCard('IT 헬프데스크 RAG', '사내 지식 베이스 연동 및 답변 최적화', 'Critical', 'Today')}
+                            </div>
+                        </div>
+
+                        <!-- Done -->
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between px-2">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                                    <span class="font-bold text-green-400">Done</span>
+                                    <span class="px-2 py-0.5 bg-green-500/10 rounded text-[10px] text-green-500 font-bold">12</span>
+                                </div>
+                                <i data-lucide="more-horizontal" class="w-4 h-4 text-slate-600 cursor-pointer"></i>
+                            </div>
+                            <div class="space-y-4 opacity-70">
+                                ${renderTaskCard('전사 보안 서약 자동화', '플랫폼 내 서약 및 이력 관리 시스템', 'Medium', 'Completed', true)}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (page === 'helpdesk') {
+                wrapper.innerHTML = `
+                    <div class="flex flex-col h-[calc(100vh-200px)] glass rounded-3xl overflow-hidden">
+                        <!-- Chat Header -->
+                        <div class="p-4 border-b border-slate-800 bg-slate-800/30 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center text-primary">
+                                    <i data-lucide="bot" class="w-6 h-6"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-sm">AX Knowledge Bot</h4>
+                                    <p class="text-[10px] text-green-400 flex items-center gap-1">
+                                        <span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span> Online
+                                    </p>
+                                </div>
+                            </div>
+                            <button onclick="clearChat()" class="text-xs text-slate-500 hover:text-white transition-colors">대화 초기화</button>
+                        </div>
+
+                        <!-- Chat Messages -->
+                        <div id="chat-messages" class="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar bg-slate-900/20">
+                            ${renderChatMessages()}
+                        </div>
+
+                        <!-- Chat Input -->
+                        <div class="p-6 bg-slate-800/30 border-t border-slate-800">
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                ${['보안 규정 알려줘', '근무 시간 규칙은?', '예산 신청 어떻게 해?'].map(q => `
+                                    <button onclick="quickQuery('${q}')" class="px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-full text-[11px] text-slate-400 hover:border-primary/50 hover:text-primary transition-all">${q}</button>
+                                `).join('')}
+                            </div>
+                            <div class="relative">
+                                <input type="text" id="chat-input" onkeypress="if(event.keyCode==13) sendChatMessage()" placeholder="궁금한 내용을 입력하세요..." class="w-full pl-4 pr-16 py-4 bg-slate-900 border border-slate-700 rounded-2xl text-sm focus:outline-none focus:border-primary transition-all shadow-inner">
+                                <button onclick="sendChatMessage()" class="absolute right-2 top-2 bottom-2 px-4 bg-primary hover:bg-primary/80 text-white rounded-xl transition-all flex items-center justify-center">
+                                    <i data-lucide="send" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                setTimeout(scrollToBottom, 100);
+            } else if (page === 'templates') {
+                const filtered = templates.filter(t => 
+                    t.type === currentState.templateTab &&
+                    (currentState.templateTab !== 'User' || currentState.templateFilter === 'All' || t.category === currentState.templateFilter) &&
+                    (t.title.toLowerCase().includes(currentState.templateSearch.toLowerCase()) || t.desc.toLowerCase().includes(currentState.templateSearch.toLowerCase()))
+                );
+
+                wrapper.innerHTML = `
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div>
+                            <div class="flex items-center gap-3">
+                                <h3 class="text-2xl font-bold">Template Hub</h3>
+                                <button onclick="openTemplateModal()" class="w-8 h-8 bg-primary/20 text-primary rounded-lg flex items-center justify-center hover:bg-primary hover:text-white transition-all shadow-lg shadow-primary/10">
+                                    <i data-lucide="plus" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                            <p class="text-slate-400 text-sm mt-1">단계별 최적화된 프롬프트를 통해 AI 활용 능력을 극대화하세요.</p>
+                        </div>
+                        <div class="relative w-full md:w-80">
+                            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+                            <input type="text" id="template-search-input" oninput="handleTemplateSearch(this.value)" placeholder="프롬프트 검색..." class="w-full pl-10 pr-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-xl text-sm focus:outline-none focus:border-primary transition-all" value="${currentState.templateSearch}">
+                        </div>
+                    </div>
+
+                    <!-- Tabs -->
+                    <div class="flex gap-4 border-b border-slate-800">
+                        ${['System', 'Instruction', 'User'].map((tab, idx) => `
+                            <button onclick="setTemplateTab('${tab}')" class="pb-4 px-2 text-sm font-bold transition-all relative ${currentState.templateTab === tab ? 'text-primary' : 'text-slate-500 hover:text-slate-300'}">
+                                ${idx + 1}. ${tab} Prompt
+                                ${currentState.templateTab === tab ? '<div class="absolute bottom-0 left-0 right-0 h-1 bg-primary rounded-t-full"></div>' : ''}
+                            </button>
+                        `).join('')}
+                    </div>
+
+                    <!-- Category Filters (Only for User Prompt) -->
+                    ${currentState.templateTab === 'User' ? `
+                        <div class="flex flex-wrap gap-2 pt-2">
+                            ${['All', 'HR', 'Marketing', 'Dev', 'Legal', 'General'].map(cat => `
+                                <button onclick="filterTemplates('${cat}')" class="px-4 py-2 rounded-xl text-xs font-bold transition-all ${currentState.templateFilter === cat ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-slate-800/50 text-slate-400 hover:bg-slate-800 border border-slate-700/50'}">
+                                    ${cat === 'All' ? '전체' : cat}
+                                </button>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+
+                    <!-- Template Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        ${filtered.length > 0 ? filtered.map(t => `
+                            <div class="glass p-6 rounded-3xl flex flex-col gap-4 group hover:border-primary/50 transition-all duration-300">
+                                <div class="flex justify-between items-start">
+                                    <span class="px-2 py-1 bg-primary/10 text-primary rounded text-[10px] font-bold uppercase tracking-wider">${t.situation}</span>
+                                    <div class="flex gap-1">
+                                        <button onclick="openTemplateModal(${t.id})" class="p-1.5 bg-slate-800 hover:bg-slate-700 rounded text-slate-500 hover:text-white transition-all">
+                                            <i data-lucide="edit-3" class="w-3 h-3"></i>
+                                        </button>
+                                        <button onclick="deleteTemplateAction(${t.id})" class="p-1.5 bg-slate-800 hover:bg-red-500/20 rounded text-slate-500 hover:text-red-400 transition-all">
+                                            <i data-lucide="trash-2" class="w-3 h-3"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="flex-1">
+                                    <h5 class="font-bold text-lg mb-2 group-hover:text-primary transition-colors text-slate-100">${t.title}</h5>
+                                    <p class="text-xs text-slate-400 leading-relaxed line-clamp-3">${t.desc}</p>
+                                </div>
+                                <div class="pt-4 border-t border-slate-800/50 flex gap-2">
+                                    <button onclick="viewTemplate(${t.id})" class="flex-1 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-[11px] font-bold transition-all">상세보기</button>
+                                    <button onclick="copyToClipboard(\`${t.prompt}\`, this)" class="flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-primary hover:bg-primary/80 text-[11px] font-bold transition-all">
+                                        <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                                        복사
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('') : `
+                            <div class="col-span-full py-20 text-center space-y-4">
+                                <div class="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto text-slate-600">
+                                    <i data-lucide="search-x" class="w-8 h-8"></i>
+                                </div>
+                                <p class="text-slate-400 font-medium">검색 결과와 일치하는 템플릿이 없습니다.</p>
+                            </div>
+                        `}
+                    </div>
+                `;
+            } else if (page === 'resource-models') {
+                wrapper.innerHTML = `
+                    <div class="space-y-6">
+                        <h3 class="text-2xl font-bold">유료 모델 및 서비스 현황</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            ${renderResourceCard('Gemini 1.5 Pro', 'Enterprise', 'Active', 'Google Cloud', 'text-primary')}
+                            ${renderResourceCard('GPT-4o', 'Team Plan', 'Active', 'OpenAI', 'text-green-400')}
+                            ${renderResourceCard('Claude 3.5 Sonnet', 'Pro', 'Pending', 'Anthropic', 'text-orange-400')}
+                        </div>
+                        <div class="glass p-8 rounded-3xl">
+                            <h4 class="text-lg font-bold mb-4">서비스별 비용 분석 (Monthly)</h4>
+                            <div class="h-64 flex items-end gap-8 px-4">
+                                ${[60, 85, 45].map((h, i) => `
+                                    <div class="flex-1 flex flex-col items-center gap-2">
+                                        <div class="w-full bg-primary/20 rounded-t-xl relative overflow-hidden" style="height: ${h}%">
+                                            <div class="absolute inset-x-0 bottom-0 bg-primary h-full opacity-60"></div>
+                                        </div>
+                                        <span class="text-xs text-slate-400">${['Gemini', 'GPT-4', 'Claude'][i]}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (page === 'resource-users') {
+                wrapper.innerHTML = `
+                    <div class="space-y-6">
+                        <h3 class="text-2xl font-bold">유료계정 사용자 관리</h3>
+                        <div class="glass overflow-hidden rounded-3xl border border-slate-800">
+                            <table class="w-full text-left border-collapse">
+                                <thead class="bg-slate-800/50">
+                                    <tr>
+                                        <th class="p-4 text-xs font-bold uppercase text-slate-500">사용자</th>
+                                        <th class="p-4 text-xs font-bold uppercase text-slate-500">부서</th>
+                                        <th class="p-4 text-xs font-bold uppercase text-slate-500">할당 모델</th>
+                                        <th class="p-4 text-xs font-bold uppercase text-slate-500">권한 레벨</th>
+                                        <th class="p-4 text-xs font-bold uppercase text-slate-500">상태</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-800">
+                                    ${renderUserRow('김철수', '마케팅팀', 'GPT-4o', 'User', 'Active')}
+                                    ${renderUserRow('이영희', '인사팀', 'Gemini 1.5 Pro', 'Manager', 'Active')}
+                                    ${renderUserRow('박지민', '개발팀', 'Claude 3.5', 'Admin', 'Active')}
+                                    ${renderUserRow('최동욱', '법무팀', 'Gemini 1.5 Pro', 'User', 'Inactive')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            } else if (page === 'security') {
+                wrapper.innerHTML = `
+                    <div class="space-y-6">
+                        <div class="flex justify-between items-end">
+                            <div>
+                                <h3 class="text-2xl font-bold">AI 보안 자가진단 엔진</h3>
+                                <p class="text-slate-400 text-sm">프롬프트나 코드를 입력하여 보안 위협 및 개인정보 유출 가능성을 진단하세요.</p>
+                            </div>
+                            <button onclick="clearDiagnosis()" class="text-xs text-slate-500 hover:text-white transition-colors flex items-center gap-1">
+                                <i data-lucide="refresh-cw" class="w-3 h-3"></i> 초기화
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <!-- Input Section -->
+                            <div class="glass p-6 rounded-3xl space-y-4">
+                                <div class="flex justify-between items-center">
+                                    <h4 class="font-bold text-sm flex items-center gap-2">
+                                        <i data-lucide="terminal" class="w-4 h-4 text-primary"></i>
+                                        진단 대상 입력
+                                    </h4>
+                                    <span class="text-[10px] text-slate-500 font-medium">최대 5,000자</span>
+                                </div>
+                                <textarea id="diagnosis-input" placeholder="분석할 프롬프트나 소스코드를 여기에 붙여넣으세요..." class="w-full h-80 bg-slate-900/50 border border-slate-800 rounded-2xl p-4 text-sm focus:outline-none focus:border-primary/50 transition-all resize-none font-mono"></textarea>
+                                <button onclick="runDiagnosis()" class="w-full py-4 bg-primary hover:bg-primary/80 text-white rounded-2xl font-bold transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2">
+                                    <i data-lucide="shield-check" class="w-5 h-5"></i>
+                                    실시간 보안 진단 실행
+                                </button>
+                            </div>
+
+                            <!-- Result Section -->
+                            <div id="diagnosis-result" class="hidden glass p-6 rounded-3xl space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
+                                <div class="flex justify-between items-start">
+                                    <h4 class="font-bold text-sm flex items-center gap-2">
+                                        <i data-lucide="clipboard-list" class="w-4 h-4 text-accent"></i>
+                                        진단 결과 리포트
+                                    </h4>
+                                    <div id="risk-badge"></div>
+                                </div>
+
+                                <div id="analysis-summary" class="p-4 bg-slate-800/50 rounded-2xl border border-slate-700/50 space-y-3">
+                                    <!-- Summary will be injected here -->
+                                </div>
+
+                                <div class="space-y-3">
+                                    <h5 class="text-xs font-bold text-slate-500 uppercase tracking-widest">탐지된 주요 위협</h5>
+                                    <div id="detected-issues" class="space-y-2">
+                                        <!-- Issues will be injected here -->
+                                    </div>
+                                </div>
+
+                                <div class="pt-4 border-t border-slate-800 space-y-3">
+                                    <h5 class="text-xs font-bold text-slate-500 uppercase tracking-widest">보안 개선 권고 사항</h5>
+                                    <ul id="recommendations" class="space-y-2">
+                                        <!-- Recommendations will be injected here -->
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Empty State for Result -->
+                            <div id="diagnosis-empty" class="glass p-6 rounded-3xl flex flex-col items-center justify-center text-center space-y-4 text-slate-500">
+                                <div class="w-16 h-16 bg-slate-800/50 rounded-full flex items-center justify-center">
+                                    <i data-lucide="shield-question" class="w-8 h-8 opacity-20"></i>
+                                </div>
+                                <p class="text-sm">입력창에 내용을 작성하고<br>진단 버튼을 클릭해 주세요.</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (page === 'resource-infra') {
+                wrapper.innerHTML = `
+                    <div class="space-y-6">
+                        <h3 class="text-2xl font-bold">Server/DB 현황</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="glass p-6 rounded-3xl space-y-4">
+                                <div class="flex justify-between items-center">
+                                    <h4 class="font-bold flex items-center gap-2">
+                                        <i data-lucide="server" class="w-4 h-4 text-primary"></i>
+                                        GPU Inference Server
+                                    </h4>
+                                    <span class="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded font-bold uppercase tracking-wider">Stable</span>
+                                </div>
+                                <div class="space-y-2">
+                                    <div class="flex justify-between text-xs text-slate-400">
+                                        <span>GPU Utilization</span>
+                                        <span>78%</span>
+                                    </div>
+                                    <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                                        <div class="h-full bg-primary" style="width: 78%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="glass p-6 rounded-3xl space-y-4">
+                                <div class="flex justify-between items-center">
+                                    <h4 class="font-bold flex items-center gap-2">
+                                        <i data-lucide="database" class="w-4 h-4 text-accent"></i>
+                                        Vector Database (Pinecone)
+                                    </h4>
+                                    <span class="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded font-bold uppercase tracking-wider">Stable</span>
+                                </div>
+                                <div class="space-y-2">
+                                    <div class="flex justify-between text-xs text-slate-400">
+                                        <span>Index Capacity</span>
+                                        <span>42%</span>
+                                    </div>
+                                    <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                                        <div class="h-full bg-accent" style="width: 42%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (page === 'resource-urls') {
+                wrapper.innerHTML = `
+                    <div class="space-y-6">
+                        <h3 class="text-2xl font-bold">접속가능 서비스 및 URL</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            ${renderUrlCard('Internal AI Lab', 'https://ai-lab.company.com', '연구용 내부 AI 도구 모음', 'Internal')}
+                            ${renderUrlCard('Gemini Studio', 'https://aistudio.google.com', 'Gemini API 키 관리 및 테스트', 'External')}
+                            ${renderUrlCard('AX Documentation', 'https://docs.ax.company.com', '전사 AX 가이드 및 보안 지침', 'Internal')}
+                        </div>
+                    </div>
+                `;
+            } else {
+                wrapper.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-[500px] text-center space-y-4">
+                        <div class="p-6 bg-slate-800 rounded-3xl">
+                            <i data-lucide="construction" class="w-12 h-12 text-slate-500"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold">개발 중인 메뉴입니다</h3>
+                        <p class="text-slate-400">Phase 2 업데이트에서 만나보실 수 있습니다.</p>
+                        <button onclick="navigate('dashboard')" class="mt-4 px-6 py-3 bg-primary rounded-xl font-bold">대시보드로 돌아가기</button>
+                    </div>
+                `;
+            }
+
+            container.appendChild(wrapper);
+            lucide.createIcons();
+        }
+
+        function renderTaskCard(title, desc, priority, date, isDone = false) {
+            const priorityColors = {
+                'High': 'text-orange-400 bg-orange-400/10',
+                'Medium': 'text-accent bg-accent/10',
+                'Critical': 'text-red-400 bg-red-400/10'
+            };
+            const pColor = priorityColors[priority] || 'text-slate-400 bg-slate-400/10';
+            
+            return `
+                <div class="glass p-5 rounded-2xl border border-slate-700/50 hover:border-primary/50 transition-all cursor-grab group">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${pColor}">${priority}</span>
+                        <div class="flex -space-x-2">
+                            <div class="w-6 h-6 rounded-full bg-primary/30 border border-slate-700"></div>
+                            <div class="w-6 h-6 rounded-full bg-accent/30 border border-slate-700 text-[8px] flex items-center justify-center font-bold">+2</div>
+                        </div>
+                    </div>
+                    <h5 class="font-bold text-slate-100 group-hover:text-primary transition-colors">${title}</h5>
+                    <p class="text-xs text-slate-400 mt-1 line-clamp-2">${desc}</p>
+                    <div class="mt-4 pt-4 border-t border-slate-800/50 flex justify-between items-center">
+                        <div class="flex items-center gap-1.5 text-slate-500">
+                            <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+                            <span class="text-[10px] font-medium">${date}</span>
+                        </div>
+                        ${isDone ? '<i data-lucide="check-circle-2" class="w-4 h-4 text-green-500"></i>' : '<i data-lucide="message-square" class="w-4 h-4 text-slate-600"></i>'}
+                    </div>
+                </div>
+            `;
+        }
+
+        function setTemplateTab(tab) {
+            currentState.templateTab = tab;
+            currentState.templateFilter = 'All';
+            renderPage('templates');
+        }
+
+        function filterTemplates(cat) {
+            currentState.templateFilter = cat;
+            renderPage('templates');
+        }
+
+        function handleTemplateSearch(val) {
+            currentState.templateSearch = val;
+            renderPage('templates');
+            // Re-focus search input after re-render
+            setTimeout(() => {
+                const input = document.getElementById('template-search-input');
+                if (input) {
+                    input.focus();
+                    input.setSelectionRange(val.length, val.length);
+                }
+            }, 0);
+        }
+
+        function getTemplateIcon(cat) {
+            const icons = {
+                'HR': 'users',
+                'Marketing': 'megaphone',
+                'Dev': 'code-2',
+                'Legal': 'scale',
+                'General': 'file-text'
+            };
+            return icons[cat] || 'box';
+        }
+
+        async function copyToClipboard(text, btn) {
+            try {
+                await navigator.clipboard.writeText(text);
+                const originalContent = btn.innerHTML;
+                btn.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5"></i> 완료`;
+                btn.classList.replace('bg-primary', 'bg-green-600');
+                lucide.createIcons();
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalContent;
+                    btn.classList.replace('bg-green-600', 'bg-primary');
+                    lucide.createIcons();
+                }, 2000);
+            } catch (err) {
+                alert('복사에 실패했습니다.');
+            }
+        }
+
+        function viewTemplate(id) {
+            const t = templates.find(item => item.id == id);
+            alert(`[${t.title}]\n\n전체 프롬프트 내용:\n${t.prompt}`);
+        }
+
+        // CRUD Modal Logic
+        function openTemplateModal(id = null) {
+            const modal = document.getElementById('template-modal');
+            const titleInput = document.getElementById('modal-tpl-title');
+            const descInput = document.getElementById('modal-tpl-desc');
+            const catInput = document.getElementById('modal-tpl-cat');
+            const sitInput = document.getElementById('modal-tpl-situation');
+            const promptInput = document.getElementById('modal-tpl-prompt');
+            const idInput = document.getElementById('edit-id');
+            const modalTitle = document.getElementById('modal-title');
+
+            if (id) {
+                const t = templates.find(item => item.id == id);
+                idInput.value = t.id;
+                titleInput.value = t.title;
+                descInput.value = t.desc;
+                catInput.value = t.category;
+                sitInput.value = t.situation;
+                promptInput.value = t.prompt;
+                modalTitle.innerText = '템플릿 수정';
+            } else {
+                idInput.value = '';
+                titleInput.value = '';
+                descInput.value = '';
+                catInput.value = (currentState.templateTab === 'User' ? 'HR' : currentState.templateTab === 'System' ? 'Persona' : 'Logic');
+                sitInput.value = '';
+                promptInput.value = '';
+                modalTitle.innerText = '신규 템플릿 등록';
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            lucide.createIcons();
+        }
+
+        function closeTemplateModal() {
+            const modal = document.getElementById('template-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function saveTemplateAction() {
+            const id = document.getElementById('edit-id').value;
+            const title = document.getElementById('modal-tpl-title').value;
+            const desc = document.getElementById('modal-tpl-desc').value;
+            const category = document.getElementById('modal-tpl-cat').value;
+            const situation = document.getElementById('modal-tpl-situation').value;
+            const prompt = document.getElementById('modal-tpl-prompt').value;
+
+            if (!title || !prompt) {
+                alert('제목과 프롬프트 내용은 필수입니다.');
+                return;
+            }
+
+            if (id) {
+                // Update
+                const idx = templates.findIndex(t => t.id == id);
+                templates[idx] = { ...templates[idx], title, desc, category, situation, prompt };
+            } else {
+                // Create
+                const newId = Date.now();
+                templates.push({
+                    id: newId,
+                    type: currentState.templateTab,
+                    category,
+                    title,
+                    desc,
+                    prompt,
+                    situation
+                });
+            }
+
+            saveTemplates();
+            closeTemplateModal();
+            renderPage('templates');
+        }
+
+        function deleteTemplateAction(id) {
+            if (confirm('정말로 이 템플릿을 삭제하시겠습니까?')) {
+                templates = templates.filter(t => t.id != id);
+                saveTemplates();
+                renderPage('templates');
+            }
+        }
+
+        function toggleSubmenu(id) {
+            const submenu = document.getElementById(`submenu-${id}`);
+            const chevron = document.getElementById(`chevron-${id}`);
+            if (submenu.classList.contains('hidden')) {
+                submenu.classList.remove('hidden');
+                chevron.classList.add('rotate-180');
+            } else {
+                submenu.classList.add('hidden');
+                chevron.classList.remove('rotate-180');
+            }
+        }
+
+        function renderResourceCard(name, plan, status, provider, colorClass) {
+            return `
+                <div class="glass p-6 rounded-3xl space-y-4">
+                    <div class="flex justify-between items-start">
+                        <div class="p-3 bg-slate-800 rounded-2xl ${colorClass}">
+                            <i data-lucide="cpu" class="w-6 h-6"></i>
+                        </div>
+                        <span class="text-[10px] font-bold uppercase tracking-widest px-2 py-1 bg-slate-800 rounded border border-slate-700">${provider}</span>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-lg">${name}</h4>
+                        <p class="text-xs text-slate-500">${plan}</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 rounded-full ${status === 'Active' ? 'bg-green-500' : 'bg-orange-500'}"></div>
+                        <span class="text-xs font-semibold">${status}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderUserRow(name, dept, model, role, status) {
+            return `
+                <tr class="hover:bg-slate-800/30 transition-colors">
+                    <td class="p-4 flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-[10px] font-bold">${name[0]}</div>
+                        <span class="text-sm font-medium text-slate-100">${name}</span>
+                    </td>
+                    <td class="p-4 text-sm text-slate-400">${dept}</td>
+                    <td class="p-4 text-sm text-slate-300">${model}</td>
+                    <td class="p-4">
+                        <span class="px-2 py-1 rounded-lg text-[10px] font-bold bg-slate-800 text-slate-400">${role}</span>
+                    </td>
+                    <td class="p-4 text-sm">
+                        <div class="flex items-center gap-2 ${status === 'Active' ? 'text-green-400' : 'text-slate-500'}">
+                            <div class="w-1.5 h-1.5 rounded-full ${status === 'Active' ? 'bg-green-500' : 'bg-slate-500'}"></div>
+                            ${status}
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }
+
+        function renderUrlCard(name, url, desc, type) {
+            return `
+                <div class="glass p-6 rounded-3xl space-y-4 hover:border-primary/50 transition-all group">
+                    <div class="flex justify-between items-start">
+                        <div class="p-3 bg-primary/10 rounded-2xl text-primary">
+                            <i data-lucide="link" class="w-5 h-5"></i>
+                        </div>
+                        <span class="text-[10px] font-bold uppercase tracking-widest px-2 py-1 ${type === 'Internal' ? 'bg-accent/10 text-accent' : 'bg-orange-500/10 text-orange-400'} rounded">${type}</span>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-lg group-hover:text-primary transition-colors">${name}</h4>
+                        <p class="text-xs text-slate-500 mt-1">${desc}</p>
+                    </div>
+                    <a href="${url}" target="_blank" class="block text-xs text-primary font-bold hover:underline truncate">${url}</a>
+                </div>
+            `;
+        }
+
+        function runDiagnosis() {
+            const input = document.getElementById('diagnosis-input').value;
+            if (!input.trim()) {
+                alert('진단할 내용을 입력해 주세요.');
+                return;
+            }
+
+            const resultSection = document.getElementById('diagnosis-result');
+            const emptySection = document.getElementById('diagnosis-empty');
+            
+            // Simulation logic
+            const issues = [];
+            if (input.includes('@')) issues.push({ type: 'Personal', item: 'Email Address', risk: 'High' });
+            if (/[0-9]{3}-[0-9]{4}-[0-9]{4}/.test(input)) issues.push({ type: 'Personal', item: 'Phone Number', risk: 'High' });
+            if (input.toLowerCase().includes('api_key') || input.toLowerCase().includes('secret')) issues.push({ type: 'Secret', item: 'Authentication Key', risk: 'Critical' });
+            if (input.toLowerCase().includes('대외비') || input.toLowerCase().includes('confidential')) issues.push({ type: 'Business', item: 'Confidential Mark', risk: 'Mid' });
+
+            const riskLevel = issues.length === 0 ? 'Safe' : issues.some(i => i.risk === 'Critical' || i.risk === 'High') ? 'Danger' : 'Caution';
+            
+            // Update UI
+            emptySection.classList.add('hidden');
+            resultSection.classList.remove('hidden');
+            
+            const badge = document.getElementById('risk-badge');
+            const colors = {
+                'Safe': 'bg-green-500/20 text-green-400 border-green-500/50',
+                'Caution': 'bg-orange-500/20 text-orange-400 border-orange-500/50',
+                'Danger': 'bg-red-500/20 text-red-400 border-red-500/50'
+            };
+            badge.className = `px-3 py-1 rounded-full border text-xs font-bold ${colors[riskLevel]}`;
+            badge.innerText = riskLevel.toUpperCase();
+
+            const summary = document.getElementById('analysis-summary');
+            summary.innerHTML = `
+                <p class="text-sm text-slate-300">총 <strong>${issues.length}</strong>건의 보안 위험 요소가 탐지되었습니다.</p>
+                <p class="text-xs text-slate-500">${riskLevel === 'Safe' ? '보안상 안전한 프롬프트입니다. 그대로 사용하셔도 좋습니다.' : '탐지된 위험 요소를 제거하거나 마스킹 처리한 후 사용할 것을 권장합니다.'}</p>
+            `;
+
+            const issuesList = document.getElementById('detected-issues');
+            issuesList.innerHTML = issues.length > 0 ? issues.map(i => `
+                <div class="flex justify-between items-center p-3 bg-slate-900/50 rounded-xl border border-slate-800">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="alert-triangle" class="w-4 h-4 ${i.risk === 'Critical' || i.risk === 'High' ? 'text-red-400' : 'text-orange-400'}"></i>
+                        <span class="text-xs font-medium text-slate-300">${i.item} <span class="text-slate-500">(${i.type})</span></span>
+                    </div>
+                    <span class="text-[10px] font-bold uppercase ${i.risk === 'Critical' || i.risk === 'High' ? 'text-red-400' : 'text-orange-400'}">${i.risk}</span>
+                </div>
+            `).join('') : `
+                <div class="text-center py-4 text-xs text-slate-600">탐지된 위협이 없습니다.</div>
+            `;
+
+            const recs = document.getElementById('recommendations');
+            const recList = issues.length === 0 
+                ? ['현재 프롬프트는 안전한 상태입니다.', '부서별 보안 가이드를 준수하며 사용하세요.']
+                : ['개인정보(이메일, 연락처 등)는 가상 데이터로 치환하세요.', '사내 기밀 데이터가 포함된 경우 마스킹 처리를 하세요.', 'API Key나 패스워드는 절대 프롬프트에 포함하지 마세요.'];
+            
+            recs.innerHTML = recList.map(r => `
+                <li class="flex items-start gap-2 text-xs text-slate-400">
+                    <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-primary shrink-0 mt-0.5"></i>
+                    ${r}
+                </li>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        function clearDiagnosis() {
+            document.getElementById('diagnosis-input').value = '';
+            document.getElementById('diagnosis-result').classList.add('hidden');
+            document.getElementById('diagnosis-empty').classList.remove('hidden');
+        }
+
+        function renderChatMessages() {
+            return currentState.chatHistory.map(chat => `
+                <div class="flex ${chat.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in">
+                    <div class="max-w-[80%] space-y-2">
+                        <div class="${chat.role === 'user' ? 'bg-primary text-white' : 'glass bg-slate-800/80 text-slate-200'} p-4 rounded-2xl text-sm shadow-lg">
+                            ${chat.message.replace(/\n/g, '<br>')}
+                        </div>
+                        ${chat.sources && chat.sources.length > 0 ? `
+                            <div class="flex flex-wrap gap-2 pt-1">
+                                ${chat.sources.map(s => `
+                                    <span class="flex items-center gap-1 px-2 py-0.5 bg-slate-800/50 rounded border border-slate-700 text-[10px] text-slate-500">
+                                        <i data-lucide="file-text" class="w-3 h-3"></i> ${s}
+                                    </span>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            if (!message) return;
+
+            // User Message
+            currentState.chatHistory.push({ role: 'user', message: message });
+            input.value = '';
+            updateChatUI();
+
+            // Mock RAG Logic
+            setTimeout(() => {
+                const found = knowledgeBase.filter(kb => 
+                    kb.tags.some(tag => message.includes(tag)) || 
+                    kb.title.includes(message.split(' ')[0])
+                );
+
+                let aiResponse = '';
+                let sources = [];
+
+                if (found.length > 0) {
+                    aiResponse = found.map(f => f.content).join('\n\n');
+                    sources = found.map(f => f.title);
+                } else {
+                    aiResponse = '죄송합니다. 관련 규정을 찾지 못했습니다. 구체적인 키워드(보안, 근무시간, 예산 등)를 포함하여 다시 질문해 주시겠어요?';
+                }
+
+                currentState.chatHistory.push({ role: 'ai', message: aiResponse, sources: sources });
+                updateChatUI();
+            }, 800);
+        }
+
+        function updateChatUI() {
+            const container = document.getElementById('chat-messages');
+            if (container) {
+                container.innerHTML = renderChatMessages();
+                lucide.createIcons();
+                scrollToBottom();
+            }
+        }
+
+        function quickQuery(q) {
+            document.getElementById('chat-input').value = q;
+            sendChatMessage();
+        }
+
+        function clearChat() {
+            currentState.chatHistory = [
+                { role: 'ai', message: '대화가 초기화되었습니다. 무엇을 도와드릴까요?', sources: [] }
+            ];
+            updateChatUI();
+        }
+
+        function scrollToBottom() {
+            const container = document.getElementById('chat-messages');
+            if (container) {
+                container.scrollTop = container.scrollHeight;
+            }
+        }
+
+        function viewTemplate(id) {
+            const t = templates.find(item => item.id == id);
+            alert(`[${t.title}]\n\n전체 프롬프트 내용:\n${t.prompt}`);
+        }
+
+        // CRUD Modal Logic
+        function openTemplateModal(id = null) {
+            const modal = document.getElementById('template-modal');
+            const titleInput = document.getElementById('modal-tpl-title');
+            const descInput = document.getElementById('modal-tpl-desc');
+            const catInput = document.getElementById('modal-tpl-cat');
+            const sitInput = document.getElementById('modal-tpl-situation');
+            const promptInput = document.getElementById('modal-tpl-prompt');
+            const idInput = document.getElementById('edit-id');
+            const modalTitle = document.getElementById('modal-title');
+
+            if (id) {
+                const t = templates.find(item => item.id == id);
+                idInput.value = t.id;
+                titleInput.value = t.title;
+                descInput.value = t.desc;
+                catInput.value = t.category;
+                sitInput.value = t.situation;
+                promptInput.value = t.prompt;
+                modalTitle.innerText = '템플릿 수정';
+            } else {
+                idInput.value = '';
+                titleInput.value = '';
+                descInput.value = '';
+                catInput.value = (currentState.templateTab === 'User' ? 'HR' : currentState.templateTab === 'System' ? 'Persona' : 'Logic');
+                sitInput.value = '';
+                promptInput.value = '';
+                modalTitle.innerText = '신규 템플릿 등록';
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            lucide.createIcons();
+        }
+
+        function closeTemplateModal() {
+            const modal = document.getElementById('template-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function saveTemplateAction() {
+            const id = document.getElementById('edit-id').value;
+            const title = document.getElementById('modal-tpl-title').value;
+            const desc = document.getElementById('modal-tpl-desc').value;
+            const category = document.getElementById('modal-tpl-cat').value;
+            const situation = document.getElementById('modal-tpl-situation').value;
+            const prompt = document.getElementById('modal-tpl-prompt').value;
+
+            if (!title || !prompt) {
+                alert('제목과 프롬프트 내용은 필수입니다.');
+                return;
+            }
+
+            if (id) {
+                // Update
+                const idx = templates.findIndex(t => t.id == id);
+                templates[idx] = { ...templates[idx], title, desc, category, situation, prompt };
+            } else {
+                // Create
+                const newId = Date.now();
+                templates.push({
+                    id: newId,
+                    type: currentState.templateTab,
+                    category,
+                    title,
+                    desc,
+                    prompt,
+                    situation
+                });
+            }
+
+            saveTemplates();
+            closeTemplateModal();
+            renderPage('templates');
+        }
+        function deleteTemplateAction(id) {
+            const modal = document.getElementById('confirm-modal');
+            const yesBtn = document.getElementById('confirm-yes-btn');
+            
+            yesBtn.onclick = () => {
+                templates = templates.filter(t => t.id != id);
+                saveTemplates();
+                closeConfirmModal();
+                renderPage('templates');
+            };
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            lucide.createIcons();
+        }
+
+        function closeConfirmModal() {
+            const modal = document.getElementById('confirm-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Initial Render
+        if (currentState.isPledged) {
+            renderPage('dashboard');
+        }
+    </script>
+</body>
+</html>
