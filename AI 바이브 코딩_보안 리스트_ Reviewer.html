@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Code Security Reviewer v1.0 — Offline</title>
+<script src="https://unpkg.com/docx@8.5.0/build/index.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#ffffff;--bg2:#f7f7f5;--bg3:#f0efeb;
+  --text:#1a1a18;--text2:#555551;--text3:#888882;
+  --border:#d8d7d2;--border2:#b0afa8;
+  --crit:#b91c1c;--critbg:#fef2f2;--critborder:#fecaca;
+  --high:#c2410c;--highbg:#fff7ed;--highborder:#fed7aa;
+  --med:#a16207;--medbg:#fefce8;--medborder:#fef08a;
+  --low:#1d4ed8;--lowbg:#eff6ff;--lowborder:#bfdbfe;
+  --info:#4b5563;--infobg:#f9fafb;--infoborder:#e5e7eb;
+  --pass:#15803d;--passbg:#dcfce7;
+  --fail:#b91c1c;--failbg:#fef2f2;
+  --warn:#a16207;--warnbg:#fefce8;
+  --na:#888882;--nabg:#f9fafb;
+  --gradeA:#15803d;--gradeB:#1d4ed8;--gradeC:#a16207;--gradeD:#c2410c;--gradeF:#b91c1c;
+}
+body{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:13px;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;display:flex;flex-direction:column}
+button{font-family:inherit;cursor:pointer}
+select{font-family:inherit}
+input{font-family:inherit}
+textarea{font-family:inherit}
+
+/* Header */
+.app-header{display:flex;align-items:center;justify-content:space-between;padding:0 16px;height:40px;background:var(--text);color:var(--bg);border-bottom:2px solid #000;flex-shrink:0}
+.app-title{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.1em}
+.app-title .dot{width:6px;height:6px;background:#dc2626;border-radius:50%}
+.app-meta{font-size:10px;color:#9ca3af;letter-spacing:.06em}
+.header-btns{display:flex;gap:6px}
+.hbtn{font-size:10px;padding:4px 10px;background:none;border:1px solid #4b5563;color:#d1d5db;border-radius:2px;letter-spacing:.06em;transition:all .15s}
+.hbtn:hover{background:#374151;border-color:#6b7280}
+.hbtn.primary{background:#dc2626;border-color:#dc2626;color:#fff}
+.hbtn.primary:hover{background:#b91c1c}
+.hbtn:disabled{opacity:.4;cursor:default}
+
+/* Settings bar */
+.settings-bar{display:flex;align-items:center;gap:10px;padding:6px 14px;background:var(--bg3);border-bottom:1px solid var(--border);flex-shrink:0;font-size:11px}
+.settings-bar label{color:var(--text3);letter-spacing:.06em}
+.apikey-input{flex:1;max-width:380px;padding:4px 8px;border:1px solid var(--border);border-radius:2px;font-size:11px;background:var(--bg);color:var(--text)}
+.mode-badge{font-size:10px;padding:2px 8px;border-radius:2px;letter-spacing:.04em}
+.mode-static{background:#e0e7ff;color:#3730a3}
+.mode-ai{background:#dcfce7;color:#15803d}
+.warn-note{font-size:10px;color:var(--warn);background:var(--warnbg);padding:2px 8px;border-radius:2px;border:1px solid var(--medborder)}
+
+/* Main grid */
+.main-grid{display:grid;grid-template-columns:1fr 1fr;flex:1;overflow:hidden}
+
+/* Left panel */
+.left-panel{display:flex;flex-direction:column;border-right:1px solid var(--border);overflow:hidden}
+.panel-toolbar{display:flex;align-items:center;gap:6px;padding:6px 12px;border-bottom:1px solid var(--border);background:var(--bg2);flex-shrink:0}
+.panel-label{font-size:10px;color:var(--text3);letter-spacing:.08em;margin-right:4px}
+.lang-select{font-size:11px;padding:3px 6px;border:1px solid var(--border);border-radius:2px;background:var(--bg);color:var(--text2)}
+.tbtn{font-size:11px;padding:3px 8px;background:none;border:1px solid var(--border);border-radius:2px;color:var(--text2);transition:all .12s}
+.tbtn:hover{background:var(--bg3);border-color:var(--border2)}
+.tbtn.accent{border-color:#6366f1;color:#4f46e5}
+.code-textarea{flex:1;resize:none;border:none;outline:none;padding:12px 14px;font-size:12px;line-height:1.7;background:var(--bg);color:var(--text);tab-size:2}
+.left-footer{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;border-top:1px solid var(--border);background:var(--bg2);flex-shrink:0}
+.code-stats{font-size:10px;color:var(--text3)}
+.run-btn{font-size:11px;padding:6px 20px;border-radius:2px;border:1px solid var(--border);letter-spacing:.06em;transition:all .15s;background:var(--bg)}
+.run-btn.ready{background:var(--text);color:var(--bg);border-color:var(--text);cursor:pointer}
+.run-btn.ready:hover{background:#333}
+.run-btn.running{color:var(--text3);cursor:wait}
+
+/* Right panel */
+.right-panel{display:flex;flex-direction:column;overflow:hidden}
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:10px}
+.empty-label{font-size:11px;color:var(--text3);letter-spacing:.1em}
+.empty-sub{font-size:11px;color:var(--text3);text-align:center;line-height:1.9}
+
+/* Results */
+.results-container{display:flex;flex-direction:column;height:100%;overflow:hidden}
+.summary-block{padding:12px 16px;border-bottom:1px solid var(--border);background:var(--bg2);flex-shrink:0}
+.sum-row{display:flex;align-items:flex-start;gap:14px}
+.grade-display{text-align:center;min-width:50px;flex-shrink:0}
+.grade-letter{font-size:38px;font-weight:900;line-height:1;font-style:italic}
+.grade-sub{font-size:9px;color:var(--text3);letter-spacing:.1em;margin-top:1px}
+.sum-details{flex:1}
+.badges-row{display:flex;align-items:center;gap:6px;margin-bottom:5px}
+.risk-badge{font-size:10px;padding:2px 8px;border-radius:2px;font-weight:600;letter-spacing:.05em}
+.lang-badge{font-size:10px;color:var(--text3)}
+.score-text{font-size:11px;color:var(--text3);margin-left:auto}
+.score-track{height:3px;background:var(--bg3);border-radius:2px;margin-bottom:6px;border:1px solid var(--border)}
+.score-fill{height:100%;border-radius:2px;transition:width .5s ease}
+.overview-text{font-size:11.5px;color:var(--text2);line-height:1.75}
+
+/* Mini stats */
+.mini-stats{display:flex;align-items:center;gap:14px;padding:6px 16px;border-bottom:1px solid var(--border);background:var(--bg);flex-shrink:0}
+.stat-chip{font-size:11px}
+
+/* Export toolbar */
+.export-bar{display:flex;align-items:center;gap:6px;padding:6px 12px;border-bottom:1px solid var(--border);background:var(--bg3);flex-shrink:0}
+.exp-label{font-size:10px;color:var(--text3);letter-spacing:.08em;margin-right:2px}
+.exp-btn{font-size:11px;padding:4px 12px;background:var(--bg);border:1px solid var(--border2);border-radius:2px;color:var(--text2);transition:all .12s;letter-spacing:.04em}
+.exp-btn:hover{background:var(--bg3);border-color:var(--text3)}
+.exp-btn.word-btn{border-color:#2563eb;color:#1d4ed8}
+.exp-btn.word-btn:hover{background:#eff6ff}
+.exp-btn.html-btn{border-color:#16a34a;color:#15803d}
+.exp-btn.html-btn:hover{background:#dcfce7}
+
+/* Tabs */
+.tabs-row{display:flex;border-bottom:1px solid var(--border);background:var(--bg);flex-shrink:0}
+.tab{flex:1;padding:8px 0;font-size:11px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text3);cursor:pointer;letter-spacing:.06em;transition:all .1s}
+.tab.active{border-bottom-color:var(--text);color:var(--text);font-weight:500}
+
+/* Tab content */
+.tab-content{flex:1;overflow-y:auto}
+
+/* Severity groups */
+.sev-group-header{padding:5px 14px;font-size:10px;color:var(--text3);letter-spacing:.1em;border-bottom:1px solid var(--border);background:var(--bg2);position:sticky;top:0;z-index:1}
+.issue-card{padding:10px 14px;border-bottom:1px solid var(--border);border-left:3px solid transparent}
+.issue-top{display:flex;align-items:center;gap:6px;margin-bottom:3px}
+.cat-tag{font-size:10px;padding:1px 6px;border-radius:2px;font-weight:500}
+.owasp-tag{font-size:10px;color:var(--text3)}
+.line-tag{font-size:10px;color:var(--text3)}
+.issue-title{font-size:12.5px;font-weight:600;margin-bottom:4px;color:var(--text)}
+.issue-detail{font-size:11.5px;color:var(--text2);line-height:1.65;margin-bottom:5px}
+.issue-fix{font-size:11px;color:var(--text2);background:var(--bg2);padding:5px 10px;border-radius:2px;line-height:1.65;border-left:2px solid #16a34a}
+.fix-arrow{color:#15803d;margin-right:4px;font-weight:700}
+
+/* Checklist */
+.cl-item{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border)}
+.cl-icon{font-size:15px;width:20px;text-align:center;flex-shrink:0;margin-top:0px;font-weight:700}
+.cl-body{flex:1}
+.cl-name-row{display:flex;align-items:center;gap:6px;margin-bottom:2px}
+.cl-name{font-size:12px;color:var(--text)}
+.req-tag{font-size:9px;padding:1px 5px;border-radius:2px;background:var(--failbg);color:var(--fail);letter-spacing:.04em;border:1px solid var(--critborder)}
+.rec-tag{font-size:9px;padding:1px 5px;border-radius:2px;background:var(--lowbg);color:var(--low);letter-spacing:.04em;border:1px solid var(--lowborder)}
+.cl-note{font-size:11px;color:var(--text3);line-height:1.55}
+.cl-status{font-size:10px;letter-spacing:.07em;font-weight:600;flex-shrink:0;margin-top:2px}
+
+/* Summary tab */
+.sum-tab-content{padding:14px 16px}
+.sum-section-title{font-size:10px;color:var(--text3);letter-spacing:.1em;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--border)}
+.positive-item{font-size:12px;color:var(--text2);line-height:1.7;padding:4px 0 4px 10px;border-left:2px solid var(--pass);margin-bottom:4px}
+.rec-item{font-size:12px;color:var(--text2);line-height:1.7;padding:6px 10px;background:var(--bg2);border-radius:2px;margin-bottom:5px;border:1px solid var(--border)}
+.rec-num{color:var(--text3);margin-right:8px}
+
+/* Loading */
+.loading-state{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:14px}
+.spinner{display:flex;gap:5px}
+.spin-dot{width:6px;height:6px;border-radius:50%;background:var(--text3);animation:blink 1.2s ease-in-out infinite alternate}
+@keyframes blink{from{opacity:.2}to{opacity:1}}
+
+/* No issues */
+.no-issues{padding:20px 16px;font-size:12px;color:var(--pass)}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="app-header">
+  <div class="app-title">
+    <span class="dot"></span>
+    CODE SECURITY REVIEWER
+    <span style="font-size:9px;color:#6b7280;margin-left:4px;font-weight:400">v1.0</span>
+  </div>
+  <div class="app-meta">OWASP Top10 · Google Eng. Practices · CERT · 사내보안지침 v1.0</div>
+  <div class="header-btns">
+    <button class="hbtn" id="htmlExportBtn" disabled onclick="exportHTML()">HTML 저장</button>
+    <button class="hbtn primary" id="wordExportBtn" disabled onclick="exportWord()">Word 저장</button>
+  </div>
+</div>
+
+<!-- Settings bar -->
+<div class="settings-bar">
+  <label>API KEY (선택)</label>
+  <input type="password" class="apikey-input" id="apiKey" placeholder="sk-ant-... (미입력 시 정적 분석 전용으로 동작)">
+  <span class="mode-badge" id="modeBadge" style="background:#e0e7ff;color:#3730a3">STATIC ONLY</span>
+  <span class="warn-note" id="corsNote" style="display:none">⚠ API 사용 시 로컬 서버 필요: python -m http.server</span>
+</div>
+
+<!-- Main -->
+<div class="main-grid">
+  <!-- Left: Input -->
+  <div class="left-panel">
+    <div class="panel-toolbar">
+      <span class="panel-label">INPUT</span>
+      <select class="lang-select" id="langSelect">
+        <option value="auto">Auto Detect</option>
+        <option value="python">Python</option>
+        <option value="javascript">JavaScript</option>
+        <option value="typescript">TypeScript</option>
+        <option value="java">Java</option>
+        <option value="csharp">C#</option>
+        <option value="go">Go</option>
+        <option value="php">PHP</option>
+        <option value="shell">Shell/Bash</option>
+        <option value="sql">SQL</option>
+        <option value="ruby">Ruby</option>
+      </select>
+      <button class="tbtn" onclick="loadSample()">샘플 코드</button>
+      <button class="tbtn" onclick="clearAll()">지우기</button>
+    </div>
+    <textarea class="code-textarea" id="codeInput" placeholder="// 리뷰할 코드를 붙여넣으세요...&#10;// Paste or type code to review..."></textarea>
+    <div class="left-footer">
+      <span class="code-stats" id="codeStats">0 줄 / 0 자</span>
+      <button class="run-btn" id="runBtn" disabled onclick="runAnalysis()">보안 리뷰 실행 ▶</button>
+    </div>
+  </div>
+
+  <!-- Right: Results -->
+  <div class="right-panel" id="rightPanel">
+    <div class="empty-state">
+      <div class="empty-label">AWAITING INPUT</div>
+      <div class="empty-sub">코드를 입력하고<br>보안 리뷰를 실행하세요<br><br>
+        <span style="color:#b0afa8;font-size:10px">정적 분석: 완전 오프라인 동작<br>AI 분석: API Key + 인터넷 필요</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// CONSTANTS
+// ============================================================
+const SAMPLE_CODE = `import smtplib
+import sqlite3
+import os
+import subprocess
+
+# 주의: 보안 취약 코드 예시
+SMTP_HOST = "mail.company.com"
+SMTP_USER = "admin@company.com"
+SMTP_PASS = "P@ssw0rd123"
+
+DB_HOST = "192.168.1.10"
+DB_PORT = 3306
+DB_PASS = "root1234"
+API_KEY = "sk-live-abcdef123456"
+
+def send_report(to_email, content):
+    try:
+        server = smtplib.SMTP(SMTP_HOST, 587)
+        server.login(SMTP_USER, SMTP_PASS)
+        server.sendmail(SMTP_USER, to_email, content)
+        server.quit()
+    except Exception as e:
+        print(f"SMTP Error: {e}, Host:{SMTP_HOST}, PW:{SMTP_PASS}")
+
+def get_user(username):
+    conn = sqlite3.connect("app.db")
+    query = f"SELECT * FROM users WHERE name = '{username}'"
+    cursor = conn.execute(query)
+    return cursor.fetchall()
+
+def run_cmd(user_input):
+    result = subprocess.run(f"ls {user_input}", shell=True, capture_output=True)
+    return result.stdout
+
+def log_activity(user, action, password):
+    with open("app.log", "a") as f:
+        f.write(f"User:{user}, PW:{password}, Key:{API_KEY}, Action:{action}\\n")
+
+def call_external():
+    import requests
+    resp = requests.get(f"http://internal-api.company.com/data?key={API_KEY}")
+    return resp.json()
+`;
+
+const SEV_ORDER = ["critical","high","medium","low","info"];
+const SEV_CFG = {
+  critical: {label:"CRITICAL", color:"var(--crit)", bg:"var(--critbg)", border:"var(--critborder)", score:-20},
+  high:     {label:"HIGH",     color:"var(--high)", bg:"var(--highbg)", border:"var(--highborder)", score:-12},
+  medium:   {label:"MEDIUM",   color:"var(--med)",  bg:"var(--medbg)",  border:"var(--medborder)",  score:-6},
+  low:      {label:"LOW",      color:"var(--low)",  bg:"var(--lowbg)",  border:"var(--lowborder)",  score:-2},
+  info:     {label:"INFO",     color:"var(--info)", bg:"var(--infobg)", border:"var(--infoborder)", score:0},
+};
+const GRADE_MAP = {A:"var(--gradeA)",B:"var(--gradeB)",C:"var(--gradeC)",D:"var(--gradeD)",F:"var(--gradeF)"};
+const RISK_CFG = {
+  LOW:      {label:"LOW RISK",      color:"var(--pass)",    bg:"var(--passbg)"},
+  MEDIUM:   {label:"MEDIUM RISK",   color:"var(--warn)",    bg:"var(--warnbg)"},
+  HIGH:     {label:"HIGH RISK",     color:"var(--high)",    bg:"var(--highbg)"},
+  CRITICAL: {label:"CRITICAL RISK", color:"var(--fail)",    bg:"var(--failbg)"},
+};
+const STATUS_CFG = {
+  pass:    {icon:"✓", color:"var(--pass)", label:"PASS"},
+  fail:    {icon:"✗", color:"var(--fail)", label:"FAIL"},
+  warning: {icon:"△", color:"var(--warn)", label:"WARN"},
+  na:      {icon:"—", color:"var(--na)",   label:"N/A"},
+};
+const MANDATORY_ITEMS = [0,1,2,3,5,7];
+
+// ============================================================
+// STATIC ANALYSIS RULES
+// ============================================================
+const RULES = [
+  {
+    id:"cred_hardcode",
+    severity:"critical",
+    category:"Authentication",
+    owasp:"A02",
+    checkFail:[0,1],
+    pattern:/(password|passwd|pwd|secret|api[_-]?key|api[_-]?secret|token|access[_-]?key|private[_-]?key|auth[_-]?token)\s*[=:]\s*['"][^'"]{3,}['"]/gi,
+    title:"인증정보 하드코딩",
+    detail:"비밀번호·API Key·Token이 소스코드에 평문으로 하드코딩되어 있습니다. Git 업로드 시 외부에 영구적으로 노출됩니다.",
+    fix:"os.environ.get() / process.env / dotenv 등 환경변수로 분리. .env 파일은 .gitignore에 등록하세요.",
+  },
+  {
+    id:"sql_injection",
+    severity:"critical",
+    category:"Injection",
+    owasp:"A03",
+    checkFail:[3],
+    pattern:/f["'].*?(SELECT|INSERT|UPDATE|DELETE|DROP|TRUNCATE|WHERE|FROM).*?\{|["'].*?(SELECT|INSERT|UPDATE|DELETE).*?["']\s*[\+%]|["'].*?(SELECT|INSERT|UPDATE|DELETE).*?["']\.format\(/gi,
+    title:"SQL Injection 취약점",
+    detail:"사용자 입력이 SQL 쿼리에 직접 삽입되어 SQL Injection 공격에 취약합니다.",
+    fix:"Parameterized Query 또는 Prepared Statement 사용. ORM 라이브러리 활용 권장.",
+  },
+  {
+    id:"shell_injection",
+    severity:"high",
+    category:"Injection",
+    owasp:"A03",
+    checkFail:[],
+    pattern:/os\.system\s*\(|subprocess\.(run|call|Popen|check_output)\s*\([^)]*shell\s*=\s*True|exec\s*\(.*?(request|input|argv|param)|eval\s*\([^)]*\+/gi,
+    title:"Command/Shell Injection 위험",
+    detail:"사용자 입력이 시스템 명령어에 직접 전달될 수 있습니다. 임의 명령어 실행이 가능합니다.",
+    fix:"shell=False 사용, subprocess에 리스트 형태로 인수 전달. shlex.quote()로 입력 이스케이프.",
+  },
+  {
+    id:"eval_usage",
+    severity:"high",
+    category:"Injection",
+    owasp:"A03",
+    checkFail:[],
+    pattern:/\beval\s*\(|\bexec\s*\([^)]*(?:request|input|param|user|data)/gi,
+    title:"eval() / exec() 사용",
+    detail:"eval() 또는 exec()에 외부 입력이 전달될 경우 임의 코드 실행이 가능합니다.",
+    fix:"eval/exec 사용을 제거하고 안전한 파싱 방법(ast.literal_eval, JSON.parse 등)으로 대체하세요.",
+  },
+  {
+    id:"log_sensitive",
+    severity:"high",
+    category:"Data Exposure",
+    owasp:"A09",
+    checkFail:[7],
+    pattern:/(print|console\.log|logger\.\w+|logging\.\w+|log\.write)\s*\([^)]*\b(password|passwd|pwd|secret|api_?key|token|api_?secret)\b/gi,
+    title:"로그에 민감정보 출력",
+    detail:"로그 또는 콘솔 출력에 인증정보·민감정보가 포함되어 있습니다. 로그 파일 유출 시 즉시 노출됩니다.",
+    fix:"로그 출력 시 민감정보는 마스킹 처리. 예: '***' 또는 첫 4자리만 출력.",
+  },
+  {
+    id:"error_exposure",
+    severity:"medium",
+    category:"Data Exposure",
+    owasp:"A05",
+    checkFail:[4],
+    pattern:/except\s+\w*\s*(?:as\s+\w+\s*)?:\s*\n\s*(print|logger\.\w+|logging\.\w+)\s*\([^)]*\b(e|err|error|exception|traceback)\b/gi,
+    title:"예외 처리 시 내부 정보 노출",
+    detail:"예외 핸들러에서 오류 세부 정보(스택 트레이스, DB 접속 정보 등)가 외부에 출력될 수 있습니다.",
+    fix:"사용자에게는 일반적인 오류 메시지만 제공. 상세 오류는 서버 측 로그에만 기록.",
+  },
+  {
+    id:"hardcoded_ip",
+    severity:"medium",
+    category:"Security Misconfiguration",
+    owasp:"A05",
+    checkFail:[1],
+    pattern:/['"](192\.168\.\d{1,3}\.\d{1,3}|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3})['"]/g,
+    title:"내부 IP 주소 하드코딩",
+    detail:"내부망 IP 주소가 소스코드에 직접 포함되어 있습니다. 내부 네트워크 구조가 외부에 노출될 수 있습니다.",
+    fix:"환경변수(DB_HOST, API_HOST 등)로 분리. 도메인명 사용 권장.",
+  },
+  {
+    id:"http_url",
+    severity:"medium",
+    category:"Cryptographic Failures",
+    owasp:"A02",
+    checkFail:[],
+    pattern:/https?:\/\/(?!localhost|127\.0\.0\.1|0\.0\.0\.0)[a-z0-9\-._]+/gi,
+    titleFn:(m)=> m.startsWith("http://") ? "HTTP(암호화 없음) URL 사용" : null,
+    title:"HTTP(암호화 없음) URL 사용",
+    detail:"HTTPS 대신 HTTP URL이 사용되어 통신 내용이 평문으로 전송됩니다. 중간자 공격(MITM)에 취약합니다.",
+    fix:"모든 외부 통신은 HTTPS 사용. 인증서 유효성 검증(verify=True) 적용.",
+    filterFn:(m)=>m.startsWith("http://"),
+  },
+  {
+    id:"innerHTML",
+    severity:"medium",
+    category:"Injection",
+    owasp:"A03",
+    checkFail:[3],
+    pattern:/\.innerHTML\s*[+=]|document\.write\s*\(/g,
+    title:"XSS 취약점 (innerHTML/document.write)",
+    detail:"innerHTML 또는 document.write에 사용자 입력이 직접 삽입될 경우 XSS 공격에 취약합니다.",
+    fix:"textContent 또는 innerText 사용. 외부 데이터 삽입 시 DOMPurify 등으로 sanitize.",
+  },
+  {
+    id:"weak_random",
+    severity:"low",
+    category:"Cryptographic Failures",
+    owasp:"A02",
+    checkFail:[],
+    pattern:/Math\.random\s*\(\)|random\s*\.\s*random\s*\(\)|rand\s*\(\)/g,
+    title:"보안 목적 취약 난수 생성",
+    detail:"Math.random() / random() 등은 암호학적으로 안전하지 않습니다. 세션 토큰·비밀번호 생성에 사용 시 예측 가능합니다.",
+    fix:"crypto.randomBytes() (Node.js), secrets 모듈 (Python), SecureRandom (Java) 등 CSPRNG 사용.",
+  },
+  {
+    id:"broad_exception",
+    severity:"low",
+    category:"Code Quality",
+    owasp:"A04",
+    checkFail:[],
+    pattern:/except\s*:\s*$|catch\s*\(\s*Exception\s+\w+\s*\)\s*{|catch\s*\(\s*\.\.\.\s*\)/gm,
+    title:"과도하게 광범위한 예외 처리",
+    detail:"모든 예외를 일괄 처리하면 보안 관련 예외(인증 실패, 권한 오류 등)가 묵살될 수 있습니다.",
+    fix:"구체적인 예외 유형을 명시하여 처리. 최소한 로깅은 반드시 수행.",
+  },
+  {
+    id:"debug_code",
+    severity:"info",
+    category:"Code Quality",
+    owasp:"A05",
+    checkFail:[],
+    pattern:/console\.log\s*\(|debugger\s*;|print\s*\(['"](debug|test|temp|TODO)/gi,
+    title:"디버그 코드 잔존",
+    detail:"디버그용 console.log, debugger 문이 남아있습니다. 운영 환경에서 불필요한 정보가 출력될 수 있습니다.",
+    fix:"배포 전 디버그 코드 제거. 프로덕션 빌드에서 console.log를 비활성화하는 설정 적용.",
+  },
+];
+
+// ============================================================
+// LANGUAGE DETECTION
+// ============================================================
+function detectLanguage(code){
+  const sel = document.getElementById("langSelect").value;
+  if(sel !== "auto") return sel;
+  if(/def\s+\w+\s*\(|import\s+\w+|print\s*\(/.test(code)) return "python";
+  if(/public\s+class\s+\w+|System\.out\.print/.test(code)) return "java";
+  if(/func\s+\w+\s*\(|:=\s|package\s+main/.test(code)) return "go";
+  if(/namespace\s+\w+|using\s+System/.test(code)) return "csharp";
+  if(/\$_GET|\$_POST|echo\s+/.test(code)) return "php";
+  if(/^#!\/bin\/bash|^#!/m.test(code)) return "shell";
+  if(/^\s*(SELECT|INSERT|UPDATE|DELETE|CREATE|DROP)\s/im.test(code)) return "sql";
+  if(/require\s*\(|const\s+\w+\s*=|=>\s*{/.test(code)) return "javascript";
+  if(/:\s*(string|number|boolean|void)\s*[{;=]|interface\s+\w+/.test(code)) return "typescript";
+  return "unknown";
+}
+
+// ============================================================
+// STATIC ANALYSIS ENGINE
+// ============================================================
+function findLineNum(code, index){
+  return code.substring(0, index).split("\n").length;
+}
+
+function runStaticAnalysis(code){
+  const lang = detectLanguage(code);
+  const lines = code.split("\n");
+  const issues = [];
+  const affectedChecklist = new Set();
+
+  for(const rule of RULES){
+    const pat = new RegExp(rule.pattern.source, rule.pattern.flags.replace("g","") + "g");
+    const found = [];
+    let m;
+    while((m = pat.exec(code)) !== null){
+      if(rule.filterFn && !rule.filterFn(m[0])) continue;
+      const lineNum = findLineNum(code, m.index);
+      found.push({lineNum, matched: m[0].substring(0,60)});
+    }
+    if(found.length > 0){
+      const lineStr = found.length === 1 ? `L${found[0].lineNum}` :
+        `L${found[0].lineNum}${found.length>1?" 외 "+(found.length-1)+"곳":""}`;
+      issues.push({
+        severity: rule.severity,
+        category: rule.category,
+        owasp: rule.owasp,
+        line: lineStr,
+        title: rule.title,
+        detail: rule.detail,
+        fix: rule.fix,
+        matchCount: found.length,
+      });
+      rule.checkFail.forEach(i => affectedChecklist.add(i));
+    }
+  }
+
+  // Detect env var usage (positive signal)
+  const hasEnvUsage = /os\.environ|process\.env|load_dotenv|dotenv|getenv|config\[/.test(code);
+  const hasCredPattern = issues.some(i => i.severity === "critical" && i.category === "Authentication");
+
+  // Build checklist
+  const checklist = [
+    {item:"소스코드 내 인증정보 하드코딩 없음",    mandatory:true,
+     status: affectedChecklist.has(0) ? "fail" : "pass",
+     note: affectedChecklist.has(0) ? "비밀번호·API Key 등이 코드에 직접 포함되어 있습니다." : "인증정보 하드코딩 패턴 미발견"},
+    {item:"인증·접속 정보 환경변수 분리",         mandatory:true,
+     status: affectedChecklist.has(1) ? "fail" : (hasEnvUsage ? "pass" : "warning"),
+     note: affectedChecklist.has(1) ? "하드코딩된 접속 정보가 발견되었습니다." : (hasEnvUsage ? "환경변수 참조 패턴이 감지되었습니다." : "환경변수 사용 여부 수동 확인 필요")},
+    {item:".env / secrets 파일 .gitignore 등록",  mandatory:true,
+     status:"na",
+     note:"소스코드 단독 분석으로 판단 불가. 레포지토리 .gitignore 직접 확인 필요"},
+    {item:"사용자 입력 Injection 방지 처리",       mandatory:true,
+     status: affectedChecklist.has(3) ? "fail" : "warning",
+     note: affectedChecklist.has(3) ? "SQL/Command/XSS Injection 취약 패턴이 발견되었습니다." : "정적 패턴 미발견. 로직 수준 검증 필요"},
+    {item:"오류 메시지 내부 정보 미노출",          mandatory:false,
+     status: affectedChecklist.has(4) ? "fail" : "pass",
+     note: affectedChecklist.has(4) ? "예외 핸들러에서 내부 정보 출력 패턴이 감지되었습니다." : "노출 패턴 미발견"},
+    {item:"시스템 권한 최소화 적용",               mandatory:true,
+     status:"warning",
+     note:"코드 분석만으로 권한 범위 판단 불가. 실행 환경·파일 권한 직접 검토 필요"},
+    {item:"외부 라이브러리 공식 출처 확인",        mandatory:false,
+     status:"na",
+     note:"의존성 파일(requirements.txt, package.json 등) 별도 검토 필요"},
+    {item:"로그 내 개인정보·인증정보 미출력",      mandatory:true,
+     status: affectedChecklist.has(7) ? "fail" : "pass",
+     note: affectedChecklist.has(7) ? "로그 출력에 민감정보가 포함된 패턴이 발견되었습니다." : "로그 민감정보 출력 패턴 미발견"},
+  ];
+
+  // Score calculation
+  let score = 100;
+  const critCount = issues.filter(i=>i.severity==="critical").length;
+  const highCount = issues.filter(i=>i.severity==="high").length;
+  const medCount = issues.filter(i=>i.severity==="medium").length;
+  const lowCount = issues.filter(i=>i.severity==="low").length;
+  score -= Math.min(40, critCount * 20);
+  score -= Math.min(24, highCount * 12);
+  score -= Math.min(12, medCount * 6);
+  score -= Math.min(4, lowCount * 2);
+  score = Math.max(0, score);
+
+  const grade = score>=90?"A":score>=75?"B":score>=60?"C":score>=45?"D":"F";
+  const riskLevel = grade==="A"||grade==="B" ? "LOW" : grade==="C" ? "MEDIUM" : grade==="D" ? "HIGH" : "CRITICAL";
+
+  const positives = [];
+  if(hasEnvUsage) positives.push("환경변수(os.environ / dotenv 등) 참조 패턴이 사용되고 있습니다.");
+  if(!affectedChecklist.has(3)) positives.push("명시적 Injection 취약 패턴이 정적 분석에서 감지되지 않았습니다.");
+  if(!affectedChecklist.has(7)) positives.push("로그 출력에서 민감정보 포함 패턴이 발견되지 않았습니다.");
+  if(issues.filter(i=>i.severity==="critical").length===0) positives.push("CRITICAL 수준 이슈가 발견되지 않았습니다.");
+
+  const recommendations = [];
+  if(affectedChecklist.has(0)) recommendations.push("즉시: 하드코딩된 모든 인증정보를 환경변수로 이전하고 Git 이력에서 제거하세요 (git filter-branch 또는 BFG).");
+  if(affectedChecklist.has(3)) recommendations.push("즉시: Parameterized Query / Prepared Statement로 전환하여 SQL Injection을 방지하세요.");
+  if(affectedChecklist.has(7)) recommendations.push("긴급: 로그 파일에 기록되는 민감정보를 즉시 마스킹 처리하세요.");
+  if(!hasEnvUsage && !affectedChecklist.has(0)) recommendations.push("환경변수 관리 체계(.env + python-dotenv / dotenv-node)를 도입하세요.");
+  recommendations.push("배포 전 체크리스트 8개 항목을 팀원과 함께 cross-check 하세요.");
+
+  const overview = critCount > 0
+    ? `CRITICAL 이슈 ${critCount}건이 발견되었습니다. 배포 전 반드시 수정이 필요합니다. 전체 ${issues.length}개 이슈, 총 점수 ${score}/100.`
+    : issues.length > 0
+    ? `총 ${issues.length}개 이슈가 발견되었습니다 (HIGH: ${highCount}, MEDIUM: ${medCount}, LOW: ${lowCount}). 점수 ${score}/100.`
+    : `주요 보안 이슈가 정적 분석에서 감지되지 않았습니다. 점수 ${score}/100. 로직 레벨 검토를 권장합니다.`;
+
+  return {
+    summary: {grade, score, language: lang, risk_level: riskLevel, overview, analysisType:"static"},
+    checklist,
+    issues,
+    positives: positives.length ? positives : ["정적 분석 완료"],
+    recommendations,
+  };
+}
+
+// ============================================================
+// AI ANALYSIS (Optional)
+// ============================================================
+const AI_SYSTEM = `당신은 시니어 보안 코드 리뷰어입니다. OWASP Top10, Google Engineering Practices, CERT Secure Coding Standards, 그리고 사내 AI Tool 보안 사용 지침 v1.0을 기반으로 코드를 분석하세요.
+
+사내 보안 지침 8대 체크리스트:
+1. 소스코드 내 ID/PW/Key/Token 평문 하드코딩 없음 [필수]
+2. 인증·접속 정보 환경변수 분리 [필수]
+3. .env/secrets .gitignore 등록 [필수]
+4. 사용자 입력 Injection 방지 [필수]
+5. 오류 메시지 내부 정보 미노출 [권고]
+6. 시스템 권한 최소화 [필수]
+7. 외부 라이브러리 공식 출처 확인 [권고]
+8. 로그 내 민감정보 미출력 [필수]
+
+반드시 아래 JSON만 출력. 마크다운 백틱 금지.
+{"summary":{"grade":"A|B|C|D|F","score":0~100,"language":"언어명","risk_level":"LOW|MEDIUM|HIGH|CRITICAL","overview":"요약 2~3문장","analysisType":"ai"},"checklist":[{"item":"소스코드 내 인증정보 하드코딩 없음","status":"pass|fail|warning|na","note":""},{"item":"인증·접속 정보 환경변수 분리","status":"pass|fail|warning|na","note":""},{"item":".env/secrets 파일 .gitignore 등록","status":"pass|fail|warning|na","note":""},{"item":"사용자 입력 Injection 방지 처리","status":"pass|fail|warning|na","note":""},{"item":"오류 메시지 내부 정보 미노출","status":"pass|fail|warning|na","note":""},{"item":"시스템 권한 최소화 적용","status":"pass|fail|warning|na","note":""},{"item":"외부 라이브러리 공식 출처 확인","status":"pass|fail|warning|na","note":""},{"item":"로그 내 개인정보·인증정보 미출력","status":"pass|fail|warning|na","note":""}],"issues":[{"severity":"critical|high|medium|low|info","category":"Security|Authentication|Injection|Data Exposure|Code Quality|Design|Dependency","owasp":"A01~A10","line":"L번호","title":"제목","detail":"상세","fix":"수정방법"}],"positives":["잘된 부분"],"recommendations":["권고사항 최대5개"]}`;
+
+async function analyzeWithAI(code, apiKey){
+  const lang = detectLanguage(code);
+  const resp = await fetch("https://api.anthropic.com/v1/messages",{
+    method:"POST",
+    headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-allow-browser":"true"},
+    body:JSON.stringify({
+      model:"claude-sonnet-4-20250514",
+      max_tokens:3000,
+      system:AI_SYSTEM,
+      messages:[{role:"user",content:`다음 코드를 보안 리뷰하세요:\n\n\`\`\`${lang}\n${code}\n\`\`\``}]
+    })
+  });
+  const data = await resp.json();
+  const raw = data.content?.map(b=>b.text||"").join("")||"";
+  return JSON.parse(raw.replace(/```json|```/g,"").trim());
+}
+
+// ============================================================
+// STATE
+// ============================================================
+let currentResult = null;
+let currentTab = "issues";
+
+// ============================================================
+// UI
+// ============================================================
+function updateCodeStats(){
+  const v = document.getElementById("codeInput").value;
+  document.getElementById("codeStats").textContent = `${v.split("\n").length} 줄 / ${v.length} 자`;
+  const btn = document.getElementById("runBtn");
+  if(v.trim()){btn.disabled=false;btn.className="run-btn ready";}
+  else{btn.disabled=true;btn.className="run-btn";}
+}
+
+document.getElementById("codeInput").addEventListener("input", updateCodeStats);
+document.getElementById("apiKey").addEventListener("input", function(){
+  const hasKey = this.value.trim().length > 10;
+  const badge = document.getElementById("modeBadge");
+  const note = document.getElementById("corsNote");
+  if(hasKey){
+    badge.textContent="AI + STATIC";
+    badge.style.cssText="background:#dcfce7;color:#15803d";
+    note.style.display="inline";
+  } else {
+    badge.textContent="STATIC ONLY";
+    badge.style.cssText="background:#e0e7ff;color:#3730a3";
+    note.style.display="none";
+  }
+});
+
+function loadSample(){ document.getElementById("codeInput").value=SAMPLE_CODE; updateCodeStats(); }
+function clearAll(){ document.getElementById("codeInput").value=""; updateCodeStats(); document.getElementById("rightPanel").innerHTML=emptyHTML(); setExportBtns(false); currentResult=null; }
+
+function emptyHTML(){
+  return `<div class="empty-state"><div class="empty-label">AWAITING INPUT</div>
+  <div class="empty-sub">코드를 입력하고<br>보안 리뷰를 실행하세요<br><br>
+  <span style="color:#b0afa8;font-size:10px">정적 분석: 완전 오프라인<br>AI 분석: API Key + 인터넷 필요</span></div></div>`;
+}
+
+function setExportBtns(enabled){
+  document.getElementById("htmlExportBtn").disabled = !enabled;
+  document.getElementById("wordExportBtn").disabled = !enabled;
+}
+
+async function runAnalysis(){
+  const code = document.getElementById("codeInput").value;
+  if(!code.trim()) return;
+  const apiKey = document.getElementById("apiKey").value.trim();
+
+  showLoading();
+  try{
+    let result;
+    if(apiKey.length > 10){
+      result = await analyzeWithAI(code, apiKey);
+    } else {
+      await new Promise(r=>setTimeout(r,400));
+      result = runStaticAnalysis(code);
+    }
+    currentResult = result;
+    currentTab = "issues";
+    renderReport(result);
+    setExportBtns(true);
+  } catch(e){
+    document.getElementById("rightPanel").innerHTML = `<div class="empty-state"><div class="empty-label" style="color:var(--fail)">분석 오류</div><div class="empty-sub">${e.message}<br><br>API Key 오류 시 정적 분석 모드를 사용하세요.</div></div>`;
+  }
+}
+
+function showLoading(){
+  document.getElementById("rightPanel").innerHTML = `<div class="loading-state">
+    <div class="empty-label">ANALYZING...</div>
+    <div class="spinner">
+      <div class="spin-dot" style="animation-delay:0s"></div>
+      <div class="spin-dot" style="animation-delay:.2s"></div>
+      <div class="spin-dot" style="animation-delay:.4s"></div>
+    </div>
+  </div>`;
+}
+
+// ============================================================
+// RENDER REPORT
+// ============================================================
+function renderReport(r){
+  const s = r.summary;
+  const gc = GRADE_MAP[s.grade]||"var(--text3)";
+  const rk = RISK_CFG[s.risk_level]||RISK_CFG.MEDIUM;
+  const passN = r.checklist?.filter(c=>c.status==="pass").length||0;
+  const failN = r.checklist?.filter(c=>c.status==="fail").length||0;
+  const issN = r.issues?.length||0;
+  const aType = s.analysisType==="ai"?"AI 분석":"정적 분석";
+  const critN = r.issues?.filter(i=>i.severity==="critical").length||0;
+
+  let html = `<div class="results-container">
+  <div class="summary-block">
+    <div class="sum-row">
+      <div class="grade-display">
+        <div class="grade-letter" style="color:${gc}">${s.grade}</div>
+        <div class="grade-sub">GRADE</div>
+      </div>
+      <div class="sum-details">
+        <div class="badges-row">
+          <span class="risk-badge" style="background:${rk.bg};color:${rk.color}">${rk.label}</span>
+          <span class="lang-badge">${s.language?.toUpperCase()||""}</span>
+          <span style="font-size:10px;color:var(--text3);background:var(--bg3);padding:1px 6px;border-radius:2px;">${aType}</span>
+          <span class="score-text">${s.score}/100</span>
+        </div>
+        <div class="score-track"><div class="score-fill" style="width:${s.score}%;background:${gc}"></div></div>
+        <div class="overview-text">${s.overview||""}</div>
+      </div>
+    </div>
+  </div>
+  <div class="mini-stats">
+    <span class="panel-label">STATS</span>
+    <span class="stat-chip" style="color:var(--fail)">✗ FAIL ${failN}</span>
+    <span class="stat-chip" style="color:var(--pass)">✓ PASS ${passN}</span>
+    <span class="stat-chip" style="color:var(--text3)">${issN}개 이슈</span>
+    ${critN>0?`<span class="stat-chip" style="color:var(--crit);font-weight:700">⚠ CRITICAL ${critN}</span>`:""}
+  </div>
+  <div class="export-bar">
+    <span class="exp-label">EXPORT</span>
+    <button class="exp-btn html-btn" onclick="exportHTML()">HTML 저장</button>
+    <button class="exp-btn word-btn" onclick="exportWord()">Word (.docx)</button>
+  </div>
+  <div class="tabs-row">
+    <button class="tab ${currentTab==="issues"?"active":""}" onclick="switchTab('issues')">이슈 (${issN})</button>
+    <button class="tab ${currentTab==="checklist"?"active":""}" onclick="switchTab('checklist')">체크리스트 (8)</button>
+    <button class="tab ${currentTab==="summary"?"active":""}" onclick="switchTab('summary')">종합 의견</button>
+  </div>
+  <div class="tab-content" id="tabContent">${renderTabContent()}</div>
+  </div>`;
+  document.getElementById("rightPanel").innerHTML = html;
+}
+
+function switchTab(t){
+  currentTab = t;
+  document.querySelectorAll(".tab").forEach(b=>{
+    const match = (t==="issues"&&b.textContent.includes("이슈"))||(t==="checklist"&&b.textContent.includes("체크"))||(t==="summary"&&b.textContent.includes("종합"));
+    b.classList.toggle("active",match);
+  });
+  document.getElementById("tabContent").innerHTML = renderTabContent();
+}
+
+function renderTabContent(){
+  if(!currentResult) return "";
+  if(currentTab==="issues") return renderIssues(currentResult.issues||[]);
+  if(currentTab==="checklist") return renderChecklist(currentResult.checklist||[]);
+  return renderSummaryTab(currentResult);
+}
+
+function renderIssues(issues){
+  if(!issues.length) return `<div class="no-issues">✓ 정적 분석 기준 주요 보안 이슈가 발견되지 않았습니다.</div>`;
+  let html="";
+  SEV_ORDER.forEach(sev=>{
+    const items = issues.filter(i=>i.severity===sev);
+    if(!items.length) return;
+    const cfg = SEV_CFG[sev];
+    html += `<div class="sev-group-header" style="color:${cfg.color}">${cfg.label} (${items.length})</div>`;
+    items.forEach(issue=>{
+      html += `<div class="issue-card" style="border-left-color:${cfg.color}">
+        <div class="issue-top">
+          <span class="cat-tag" style="background:${cfg.bg};color:${cfg.color}">${issue.category||""}</span>
+          ${issue.owasp?`<span class="owasp-tag">OWASP ${issue.owasp}</span>`:""}
+          <span class="line-tag">${issue.line||""}</span>
+        </div>
+        <div class="issue-title">${issue.title||""}</div>
+        <div class="issue-detail">${issue.detail||""}</div>
+        <div class="issue-fix"><span class="fix-arrow">→</span>${issue.fix||""}</div>
+      </div>`;
+    });
+  });
+  return html;
+}
+
+function renderChecklist(checklist){
+  let html="";
+  checklist.forEach((item,idx)=>{
+    const sc = STATUS_CFG[item.status]||STATUS_CFG.na;
+    const isMand = MANDATORY_ITEMS.includes(idx);
+    html += `<div class="cl-item">
+      <div class="cl-icon" style="color:${sc.color}">${sc.icon}</div>
+      <div class="cl-body">
+        <div class="cl-name-row">
+          <span class="cl-name">${item.item}</span>
+          ${isMand?`<span class="req-tag">필수</span>`:`<span class="rec-tag">권고</span>`}
+        </div>
+        ${item.note?`<div class="cl-note">${item.note}</div>`:""}
+      </div>
+      <div class="cl-status" style="color:${sc.color}">${sc.label}</div>
+    </div>`;
+  });
+  return html;
+}
+
+function renderSummaryTab(r){
+  let html=`<div class="sum-tab-content">`;
+  if(r.positives?.length){
+    html+=`<div class="sum-section-title">POSITIVES</div>`;
+    r.positives.forEach(p=>{html+=`<div class="positive-item">${p}</div>`;});
+    html+=`<div style="height:14px"></div>`;
+  }
+  if(r.recommendations?.length){
+    html+=`<div class="sum-section-title">RECOMMENDATIONS</div>`;
+    r.recommendations.forEach((rec,i)=>{
+      html+=`<div class="rec-item"><span class="rec-num">${String(i+1).padStart(2,"0")}</span>${rec}</div>`;
+    });
+  }
+  html+=`</div>`;
+  return html;
+}
+
+// ============================================================
+// EXPORT: HTML
+// ============================================================
+function exportHTML(){
+  if(!currentResult) return;
+  const r = currentResult;
+  const now = new Date().toLocaleDateString("ko-KR",{year:"numeric",month:"2-digit",day:"2-digit"});
+  const code = document.getElementById("codeInput").value;
+  const gc_hex = {A:"#15803d",B:"#1d4ed8",C:"#a16207",D:"#c2410c",F:"#b91c1c"};
+  const rk_hex = {LOW:{c:"#15803d",bg:"#dcfce7"},MEDIUM:{c:"#a16207",bg:"#fefce8"},HIGH:{c:"#c2410c",bg:"#fff7ed"},CRITICAL:{c:"#b91c1c",bg:"#fef2f2"}};
+  const sev_hex = {critical:{c:"#b91c1c",bg:"#fef2f2"},high:{c:"#c2410c",bg:"#fff7ed"},medium:{c:"#a16207",bg:"#fefce8"},low:{c:"#1d4ed8",bg:"#eff6ff"},info:{c:"#4b5563",bg:"#f9fafb"}};
+
+  const gradeC = gc_hex[r.summary.grade]||"#374151";
+  const rk = rk_hex[r.summary.risk_level]||rk_hex.MEDIUM;
+
+  let issueRows="";
+  SEV_ORDER.forEach(sev=>{
+    const items = r.issues?.filter(i=>i.severity===sev)||[];
+    if(!items.length) return;
+    const sc = sev_hex[sev];
+    issueRows += `<tr><td colspan="5" style="background:#f8f8f8;color:${sc.c};font-weight:700;font-size:12px;padding:6px 10px;border-left:4px solid ${sc.c}">${sev.toUpperCase()} (${items.length})</td></tr>`;
+    items.forEach(i=>{
+      issueRows += `<tr>
+        <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:11px"><span style="background:${sc.bg};color:${sc.c};padding:2px 6px;border-radius:3px">${i.category}</span></td>
+        <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:11px">${i.owasp||""}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:11px">${i.line||""}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:12px;font-weight:600">${i.title}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:11px">${i.fix}</td>
+      </tr>`;
+    });
+  });
+
+  let clRows="";
+  const STATUS_COLORS={pass:"#15803d",fail:"#b91c1c",warning:"#a16207",na:"#888"};
+  const STATUS_ICONS={pass:"✓",fail:"✗",warning:"△",na:"—"};
+  (r.checklist||[]).forEach((c,i)=>{
+    const sc = STATUS_COLORS[c.status]||"#888";
+    const si = STATUS_ICONS[c.status]||"—";
+    const isMand = MANDATORY_ITEMS.includes(i);
+    clRows += `<tr>
+      <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:11px;color:#888">${String(i+1).padStart(2,"0")}</td>
+      <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:12px">${c.item} ${isMand?'<span style="font-size:10px;background:#fef2f2;color:#b91c1c;padding:1px 5px;border-radius:2px">필수</span>':''}</td>
+      <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:13px;color:${sc};font-weight:700;text-align:center">${si}</td>
+      <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:11px;color:#6b7280">${c.note||""}</td>
+    </tr>`;
+  });
+
+  const htmlContent = `<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>코드 보안 리뷰 리포트 ${now}</title>
+<style>body{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:13px;color:#1a1a18;margin:0;padding:0;background:#f7f7f5}
+.container{max-width:960px;margin:0 auto;padding:24px 20px}
+.hdr{background:#1a1a18;color:#fff;padding:16px 20px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
+.hdr h1{font-size:14px;font-weight:700;letter-spacing:.1em;margin:0}
+.hdr .meta{font-size:11px;color:#9ca3af}
+.grade-box{display:flex;align-items:center;gap:16px;background:#fff;border:1px solid #e5e7eb;padding:14px 18px;margin-bottom:14px;border-radius:4px}
+.grade-num{font-size:42px;font-weight:900;font-style:italic;color:${gradeC};line-height:1}
+.summary-text{color:#555;font-size:12px;line-height:1.75}
+.section-title{font-size:11px;font-weight:700;letter-spacing:.1em;color:#888;margin:18px 0 8px;padding-bottom:5px;border-bottom:1px solid #e5e7eb}
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid #e5e7eb;margin-bottom:14px}
+th{background:#f8f8f8;font-size:11px;font-weight:600;padding:8px 10px;border-bottom:2px solid #e5e7eb;text-align:left;color:#555;letter-spacing:.06em}
+code{background:#f0efeb;padding:1px 5px;border-radius:2px;font-size:11px}
+.footer{font-size:10px;color:#9ca3af;text-align:center;margin-top:24px;padding-top:12px;border-top:1px solid #e5e7eb}
+@media print{body{background:#fff}.hdr{background:#1a1a18!important;-webkit-print-color-adjust:exact}}
+</style></head><body>
+<div class="hdr">
+  <div><h1>CODE SECURITY REVIEW REPORT</h1><div class="meta">생성일: ${now} | 분석방식: ${r.summary.analysisType==="ai"?"AI + 정적분석":"정적분석"}</div></div>
+  <div style="text-align:right;font-size:10px;color:#6b7280">OWASP Top10 · Google Eng. Practices<br>CERT Secure Coding · 사내보안지침 v1.0</div>
+</div>
+<div class="container">
+<div class="grade-box">
+  <div class="grade-num">${r.summary.grade}</div>
+  <div>
+    <div style="margin-bottom:6px"><span style="background:${rk.bg};color:${rk.c};padding:2px 10px;border-radius:2px;font-size:11px;font-weight:700">${r.summary.risk_level} RISK</span>
+    <span style="font-size:11px;color:#888;margin-left:8px">${r.summary.language?.toUpperCase()||""}</span>
+    <span style="font-size:11px;color:#888;margin-left:8px">${r.summary.score}/100</span></div>
+    <div class="summary-text">${r.summary.overview}</div>
+  </div>
+</div>
+
+<div class="section-title">배포 전 체크리스트 (CHECKLIST)</div>
+<table><thead><tr><th style="width:40px">No</th><th>확인 항목</th><th style="width:60px;text-align:center">결과</th><th>판단 근거</th></tr></thead>
+<tbody>${clRows}</tbody></table>
+
+<div class="section-title">발견된 이슈 (ISSUES — ${r.issues?.length||0}건)</div>
+${r.issues?.length?`<table><thead><tr><th>카테고리</th><th>OWASP</th><th>위치</th><th>이슈</th><th>수정 방법</th></tr></thead><tbody>${issueRows}</tbody></table>`:`<div style="padding:12px;background:#fff;border:1px solid #e5e7eb;color:#15803d;font-size:12px">✓ 주요 이슈 미발견</div>`}
+
+<div class="section-title">긍정 사항 (POSITIVES)</div>
+<ul style="background:#fff;border:1px solid #e5e7eb;padding:10px 10px 10px 28px;margin-bottom:14px">${(r.positives||[]).map(p=>`<li style="font-size:12px;color:#555;line-height:1.8">${p}</li>`).join("")}</ul>
+
+<div class="section-title">권고사항 (RECOMMENDATIONS)</div>
+<ol style="background:#fff;border:1px solid #e5e7eb;padding:10px 10px 10px 28px;margin-bottom:14px">${(r.recommendations||[]).map(rec=>`<li style="font-size:12px;color:#555;line-height:1.8;margin-bottom:4px">${rec}</li>`).join("")}</ol>
+
+<div class="footer">Code Security Reviewer v1.0 | 본 보고서는 자동 분석 결과이며 사람에 의한 최종 검토가 필요합니다.</div>
+</div></body></html>`;
+
+  const blob = new Blob([htmlContent],{type:"text/html;charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `security_review_${now.replace(/\./g,"")}.html`;
+  a.click();
+}
+
+// ============================================================
+// EXPORT: WORD (.docx)
+// ============================================================
+async function exportWord(){
+  if(!currentResult) return;
+  if(typeof window.docx === "undefined"){
+    alert("Word 내보내기 라이브러리 로딩 중입니다. 잠시 후 다시 시도하세요.\n인터넷 연결이 필요합니다.");
+    return;
+  }
+  const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,
+    HeadingLevel, AlignmentType, WidthType, ShadingType, BorderStyle, VerticalAlign } = window.docx;
+
+  const r = currentResult;
+  const now = new Date().toLocaleDateString("ko-KR");
+  const gradeColors = {A:"2E7D32",B:"1565C0",C:"E65100",D:"BF360C",F:"B71C1C"};
+  const sevColors = {critical:"B71C1C",high:"BF360C",medium:"E65100",low:"1565C0",info:"546E7A"};
+  const statusColors = {pass:"2E7D32",fail:"B71C1C",warning:"E65100",na:"9E9E9E"};
+  const statusIcons = {pass:"✓ PASS",fail:"✗ FAIL",warning:"△ WARN",na:"— N/A"};
+
+  const border1 = {style:BorderStyle.SINGLE,size:1,color:"DDDDDD"};
+  const borders = {top:border1,bottom:border1,left:border1,right:border1};
+  const noBorder = {style:BorderStyle.NONE,size:0,color:"FFFFFF"};
+  const noBorders = {top:noBorder,bottom:noBorder,left:noBorder,right:noBorder};
+  const cm = (t,opts={})=>new TableCell({borders,...opts,margins:{top:80,bottom:80,left:120,right:120},children:[new Paragraph({children:[new TextRun({text:t||"",font:"Arial",...(opts.run||{})})],...(opts.para||{})})]});
+
+  // Issue rows
+  let issueRows = [];
+  issueRows.push(new TableRow({tableHeader:true,children:[
+    cm("카테고리",{run:{bold:true,size:18,color:"FFFFFF"},para:{},shading:{fill:"222222",type:ShadingType.CLEAR},width:{size:1600,type:WidthType.DXA}}),
+    cm("OWASP",{run:{bold:true,size:18,color:"FFFFFF"},para:{},shading:{fill:"222222",type:ShadingType.CLEAR},width:{size:800,type:WidthType.DXA}}),
+    cm("위치",{run:{bold:true,size:18,color:"FFFFFF"},para:{},shading:{fill:"222222",type:ShadingType.CLEAR},width:{size:700,type:WidthType.DXA}}),
+    cm("이슈",{run:{bold:true,size:18,color:"FFFFFF"},para:{},shading:{fill:"222222",type:ShadingType.CLEAR},width:{size:3200,type:WidthType.DXA}}),
+    cm("수정 방법",{run:{bold:true,size:18,color:"FFFFFF"},para:{},shading:{fill:"222222",type:ShadingType.CLEAR},width:{size:2660,type:WidthType.DXA}}),
+  ]}));
+  SEV_ORDER.forEach(sev=>{
+    const items = (r.issues||[]).filter(i=>i.severity===sev);
+    if(!items.length) return;
+    const sc = sevColors[sev]||"333333";
+    issueRows.push(new TableRow({children:[
+      new TableCell({borders,columnSpan:5,shading:{fill:"F5F5F5",type:ShadingType.CLEAR},margins:{top:60,bottom:60,left:120,right:120},children:[
+        new Paragraph({children:[new TextRun({text:`${sev.toUpperCase()} (${items.length})`,bold:true,size:20,color:sc,font:"Arial"})]}),
+      ]}),
+    ]}));
+    items.forEach(issue=>{
+      issueRows.push(new TableRow({children:[
+        cm(issue.category||"",{width:{size:1600,type:WidthType.DXA},run:{size:18,color:sc}}),
+        cm(issue.owasp||"",{width:{size:800,type:WidthType.DXA},run:{size:18,color:"555555"}}),
+        cm(issue.line||"",{width:{size:700,type:WidthType.DXA},run:{size:18,color:"777777"}}),
+        cm(issue.title||"",{width:{size:3200,type:WidthType.DXA},run:{size:20,bold:true}}),
+        cm(issue.fix||"",{width:{size:2660,type:WidthType.DXA},run:{size:18}}),
+      ]}));
+    });
+  });
+
+  // Checklist rows
+  let clRows = [(new TableRow({tableHeader:true,children:[
+    cm("No",{run:{bold:true,size:18,color:"FFFFFF"},shading:{fill:"222222",type:ShadingType.CLEAR},width:{size:400,type:WidthType.DXA}}),
+    cm("확인 항목",{run:{bold:true,size:18,color:"FFFFFF"},shading:{fill:"222222",type:ShadingType.CLEAR},width:{size:4500,type:WidthType.DXA}}),
+    cm("구분",{run:{bold:true,size:18,color:"FFFFFF"},shading:{fill:"222222",type:ShadingType.CLEAR},width:{size:700,type:WidthType.DXA}}),
+    cm("결과",{run:{bold:true,size:18,color:"FFFFFF"},shading:{fill:"222222",type:ShadingType.CLEAR},width:{size:800,type:WidthType.DXA}}),
+    cm("판단 근거",{run:{bold:true,size:18,color:"FFFFFF"},shading:{fill:"222222",type:ShadingType.CLEAR},width:{size:2560,type:WidthType.DXA}}),
+  ]}))];
+  (r.checklist||[]).forEach((c,i)=>{
+    const sc = statusColors[c.status]||"999999";
+    const si = statusIcons[c.status]||"N/A";
+    const isMand = MANDATORY_ITEMS.includes(i);
+    clRows.push(new TableRow({children:[
+      cm(String(i+1).padStart(2,"0"),{width:{size:400,type:WidthType.DXA},run:{size:18,color:"888888"}}),
+      cm(c.item||"",{width:{size:4500,type:WidthType.DXA},run:{size:20}}),
+      cm(isMand?"필수":"권고",{width:{size:700,type:WidthType.DXA},run:{size:16,color:isMand?"B71C1C":"1565C0"}}),
+      cm(si,{width:{size:800,type:WidthType.DXA},run:{size:18,bold:true,color:sc}}),
+      cm(c.note||"",{width:{size:2560,type:WidthType.DXA},run:{size:16,color:"666666"}}),
+    ]}));
+  });
+
+  const doc = new Document({
+    styles:{default:{document:{run:{font:"Arial",size:22}}}},
+    sections:[{
+      properties:{page:{size:{width:11906,height:16838},margin:{top:1000,right:1000,bottom:1000,left:1000}}},
+      children:[
+        // Title
+        new Paragraph({children:[new TextRun({text:"코드 보안 리뷰 보고서",bold:true,size:40,font:"Arial"})]}),
+        new Paragraph({children:[new TextRun({text:`Code Security Review Report  |  ${now}  |  ${r.summary.analysisType==="ai"?"AI + 정적분석":"정적분석"}`,size:18,color:"888888",font:"Arial"})],spacing:{after:200}}),
+
+        // Summary
+        new Paragraph({children:[new TextRun({text:"Executive Summary",bold:true,size:26,font:"Arial"})],spacing:{before:240,after:120},border:{bottom:{style:BorderStyle.SINGLE,size:4,color:"222222",space:4}}}),
+        new Table({width:{size:9906,type:WidthType.DXA},columnWidths:[1200,8706],rows:[
+          new TableRow({children:[
+            new TableCell({borders:noBorders,width:{size:1200,type:WidthType.DXA},children:[
+              new Paragraph({children:[new TextRun({text:r.summary.grade,bold:true,size:96,color:gradeColors[r.summary.grade]||"333333",font:"Arial",italics:true})]}),
+              new Paragraph({children:[new TextRun({text:"GRADE",size:16,color:"888888",font:"Arial",bold:true})]}),
+            ],verticalAlign:VerticalAlign.CENTER}),
+            new TableCell({borders:noBorders,width:{size:8706,type:WidthType.DXA},children:[
+              new Paragraph({children:[new TextRun({text:`${r.summary.risk_level} RISK  |  ${(r.summary.language||"").toUpperCase()}  |  ${r.summary.score}/100`,size:20,bold:true,font:"Arial"})],spacing:{after:80}}),
+              new Paragraph({children:[new TextRun({text:r.summary.overview||"",size:18,font:"Arial",color:"444444"})]}),
+            ],verticalAlign:VerticalAlign.CENTER}),
+          ]}),
+        ],spacing:{after:240}}),
+
+        // Checklist
+        new Paragraph({children:[new TextRun({text:"배포 전 체크리스트",bold:true,size:26,font:"Arial"})],spacing:{before:240,after:120},border:{bottom:{style:BorderStyle.SINGLE,size:4,color:"222222",space:4}}}),
+        new Table({width:{size:9906,type:WidthType.DXA},columnWidths:[400,4500,700,800,2560],rows:clRows,spacing:{after:240}}),
+
+        // Issues
+        new Paragraph({children:[new TextRun({text:`발견된 이슈 (${(r.issues||[]).length}건)`,bold:true,size:26,font:"Arial"})],spacing:{before:240,after:120},border:{bottom:{style:BorderStyle.SINGLE,size:4,color:"222222",space:4}}}),
+        ...(r.issues?.length ? [new Table({width:{size:9906,type:WidthType.DXA},columnWidths:[1600,800,700,3200,2660],rows:issueRows,spacing:{after:240}})] :
+          [new Paragraph({children:[new TextRun({text:"✓ 주요 보안 이슈가 발견되지 않았습니다.",size:20,color:"2E7D32",font:"Arial"})],spacing:{after:240}})]),
+
+        // Positives
+        new Paragraph({children:[new TextRun({text:"긍정 사항 (Positives)",bold:true,size:26,font:"Arial"})],spacing:{before:240,after:80},border:{bottom:{style:BorderStyle.SINGLE,size:4,color:"222222",space:4}}}),
+        ...(r.positives||[]).map(p=>new Paragraph({children:[new TextRun({text:`• ${p}`,size:18,font:"Arial",color:"333333"})],spacing:{after:60}})),
+
+        // Recommendations
+        new Paragraph({children:[new TextRun({text:"권고사항 (Recommendations)",bold:true,size:26,font:"Arial"})],spacing:{before:240,after:80},border:{bottom:{style:BorderStyle.SINGLE,size:4,color:"222222",space:4}}}),
+        ...(r.recommendations||[]).map((rec,i)=>new Paragraph({children:[new TextRun({text:`${String(i+1).padStart(2,"0")}.  ${rec}`,size:18,font:"Arial",color:"333333"})],spacing:{after:80}})),
+
+        // Footer
+        new Paragraph({children:[new TextRun({text:"Code Security Reviewer v1.0  |  본 보고서는 자동 분석 결과이며 사람에 의한 최종 검토가 필요합니다.",size:14,color:"999999",font:"Arial"})],spacing:{before:400}}),
+      ]
+    }]
+  });
+
+  const blob = await Packer.toBlob(doc);
+  const now2 = new Date().toLocaleDateString("ko-KR").replace(/\./g,"").replace(/\s/g,"");
+  window.saveAs(blob, `security_review_${now2}.docx`);
+}
+
+// ============================================================
+// INIT
+// ============================================================
+updateCodeStats();
+</script>
+</body>
+</html>
