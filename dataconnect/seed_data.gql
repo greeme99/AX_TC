@@ -1,0 +1,36 @@
+mutation CreateSeedData @transaction @auth(level: USER, insecureReason: "Seed data mutations are typically run by authenticated administrators or during development.") {
+  user_insertMany(data: [
+    {
+      id: "user-alpha-123",
+      username: "alphaUser",
+      email: "alpha@example.com",
+      createdAt: "2023-01-01T10:00:00Z"
+    },
+    {
+      id: "user-beta-456",
+      username: "betaTester",
+      email: "beta@example.com",
+      createdAt: "2023-01-02T11:00:00Z"
+    }
+  ])
+  post_insertMany(data: [
+    {
+      id: "post-101",
+      userUid: "user-alpha-123",
+      text: "First post by Alpha!",
+      createdAt: "2023-01-01T10:30:00Z"
+    },
+    {
+      id: "post-102",
+      userUid: "user-beta-456",
+      text: "Hello from Beta!",
+      createdAt: "2023-01-02T11:15:00Z"
+    },
+    {
+      id: "post-103",
+      userUid: "user-alpha-123",
+      text: "Another thought by Alpha.",
+      createdAt: "2023-01-03T12:00:00Z"
+    }
+  ])
+}

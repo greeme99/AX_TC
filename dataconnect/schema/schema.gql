@@ -1,0 +1,27 @@
+type User @table {
+  username: String!
+  email: String!
+  firstName: String!
+  lastName: String!
+  createdAt: Timestamp!
+  department: String
+  role: String
+  lastLogin: Timestamp
+}
+
+type Project @table {
+  name: String!
+  startDate: Date!
+  status: String!
+  createdAt: Timestamp!
+  description: String
+  endDate: Date
+  budget: Float
+}
+
+type ProjectAssignment @table(key: ["user", "project"]) {
+  user: User!
+  project: Project!
+  assignedAt: Timestamp!
+  roleInProject: String
+}

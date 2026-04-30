@@ -1,0 +1,44 @@
+# 1. Query to fetch all publicly visible posts
+query ListPublicPosts @auth(level: PUBLIC, insecureReason: "This operation is safe to expose to the public") {
+  posts(where: { isPublic: { eq: true } }) {
+    id
+    title
+    content
+    author {
+      displayName
+    }
+  }
+}
+
+# 2. Query to get a specific user's profile, accessible to any logged-in user
+query GetUserProfile($userId: String!) @auth(level: USER, insecureReason: "This operation is safe to expose to all logged in users.") {
+  user(id: $userId) {
+    id
+    displayName
+    bio
+    avatarUrl
+  }
+}
+
+# 3. Mutation to create a new post, only for authenticated users
+mutation CreatePost($title: String!, $content: String!, $isPublic: Boolean!) @auth(level: USER) {
+  post: post_insert(data: {
+    title: $title,
+    content: $content,
+    isPublic: $isPublic,
+    # Assuming 'authorId' is a field linked to the authenticated user's ID
+    authorId_expr: "auth.uid"
+  })
+}
+
+# 4. Mutation to update a post, only if the logged-in user is the author
+mutation UpdateMyPost($postId: UUID!, $title: String, $content: String, $isPublic: Boolean) @auth(expr: "resource.authorId == auth.uid") {
+  post: post_update(
+    key: { id: $postId },
+    data: {
+      title: $title,
+      content: $content,
+      isPublic: $isPublic
+    }
+  )
+}

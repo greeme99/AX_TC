@@ -13,7 +13,7 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- SheetJS (Excel Parsing) -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -23,13 +23,17 @@
                         secondary: 'var(--bg-secondary)',
                         accent: 'var(--accent)',
                         bgDark: 'var(--bg-primary)',
+                        textPrimary: 'var(--text-primary)',
+                        textSecondary: 'var(--text-secondary)',
+                        borderDefault: 'var(--border-color)',
                     },
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
                     },
                     borderRadius: {
-                        '2xl': '1rem',
-                    }
+                        '3xl': '1.5rem',
+                        '4xl': '2rem',
+                    },
                 }
             }
         }
@@ -45,36 +49,129 @@
             --border-color: rgba(255, 255, 255, 0.1);
         }
 
-        [data-theme="white"] {
+        [data-theme="light"] {
             --bg-primary: #f8fafc;
             --bg-secondary: #ffffff;
             --text-primary: #0f172a;
             --text-secondary: #475569;
-            --accent: #7c3aed;
-            --glass-bg: rgba(255, 255, 255, 0.7);
-            --border-color: rgba(15, 23, 42, 0.1);
+            --accent: #2563EB;
+            --glass-bg: rgba(255, 255, 255, 0.95);
+            --border-color: #cbd5e1;  /* More visible border */
         }
 
-        [data-theme="gray-sky"] {
-            --bg-primary: #334155;
-            --bg-secondary: #475569;
-            --text-primary: #f1f5f9;
-            --text-secondary: #cbd5e1;
-            --accent: #38bdf8;
-            --glass-bg: rgba(71, 85, 105, 0.7);
-            --border-color: rgba(255, 255, 255, 0.1);
+        [data-theme="blue-green"] {
+            --bg-primary: #F1F5F9;   /* 시안의 연한 그레이 배경 */
+            --bg-secondary: #ffffff;
+            --text-primary: #1E293B;
+            --text-secondary: #475569;
+            --accent: #4F9DA6;        /* 시안의 메인 블루그린(Teal) */
+            --glass-bg: rgba(255, 255, 255, 0.98);
+            --border-color: #cbd5e1;
+        }
+
+        /* 블루그린 테마 전용 사이드바 & 컴포넌트 스타일 */
+        [data-theme="blue-green"] #sidebar {
+            background-color: #4F9DA6; /* 시안의 테일 색상 사이드바 */
+            border-right: none;
+        }
+        [data-theme="blue-green"] #sidebar .sidebar-item {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+        [data-theme="blue-green"] #sidebar .sidebar-item:hover {
+            background: rgba(255, 255, 255, 0.1) !important;
+            color: white !important;
+        }
+        [data-theme="blue-green"] #sidebar .sidebar-item.active {
+            background: rgba(255, 255, 255, 0.2) !important;
+            color: white !important;
+            border-left: 4px solid white !important;
+        }
+        [data-theme="blue-green"] #sidebar .nav-label {
+            color: rgba(255, 255, 255, 0.5) !important;
+        }
+        [data-theme="blue-green"] #sidebar .user-container {
+            background: rgba(0, 0, 0, 0.1) !important;
+        }
+        [data-theme="blue-green"] #sidebar h1, 
+        [data-theme="blue-green"] #sidebar p,
+        [data-theme="blue-green"] #sidebar span,
+        [data-theme="blue-green"] #sidebar div {
+            color: white !important;
+        }
+        [data-theme="blue-green"] #sidebar .text-slate-400,
+        [data-theme="blue-green"] #sidebar .text-slate-500 {
+            color: rgba(255, 255, 255, 0.6) !important;
+        }
+        [data-theme="blue-green"] .glass {
+            background: #ffffff;
+            border-color: #e2e8f0;
+        }
+
+        /* Global Visibility Fixes (Strict Overrides) */
+        [data-theme="light"] .bg-slate-800, [data-theme="blue-green"] .bg-slate-800,
+        [data-theme="light"] .bg-slate-800\/50, [data-theme="blue-green"] .bg-slate-800\/50,
+        [data-theme="light"] .bg-slate-800\/30, [data-theme="blue-green"] .bg-slate-800\/30,
+        [data-theme="light"] .bg-slate-800\/20, [data-theme="blue-green"] .bg-slate-800\/20,
+        [data-theme="light"] .bg-slate-900, [data-theme="blue-green"] .bg-slate-900 { 
+            background-color: #f1f5f9 !important; 
+            color: #1e293b !important;
+            border: 1px solid var(--border-color) !important;
+        }
+
+        [data-theme="light"] .hover\:bg-slate-700:hover, [data-theme="blue-green"] .hover\:bg-slate-700:hover {
+            background-color: #e2e8f0 !important;
+        }
+
+        [data-theme="light"] input, [data-theme="blue-green"] input,
+        [data-theme="light"] select, [data-theme="blue-green"] select,
+        [data-theme="light"] textarea, [data-theme="blue-green"] textarea {
+            background-color: #ffffff !important;
+            color: #0f172a !important;
+            border: 1.5px solid var(--border-color) !important;
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05) !important;
+        }
+
+        /* Enforce high contrast for sub-tags and info in light mode */
+        [data-theme="light"] .text-slate-500, [data-theme="blue-green"] .text-slate-500,
+        [data-theme="light"] .text-slate-600, [data-theme="blue-green"] .text-slate-600 {
+            color: #1e293b !important; /* Darker for better visibility */
+            font-weight: 500;
+        }
+
+        [data-theme="light"] .border-slate-800, [data-theme="light"] .border-slate-700,
+        [data-theme="blue-green"] .border-slate-800, [data-theme="blue-green"] .border-slate-700 {
+            border-color: var(--border-color) !important;
+        }
+
+        /* Enforce visibility on primary elements */
+        .bg-primary { 
+            background-color: var(--accent) !important;
+            color: #ffffff !important; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .text-primary { color: var(--accent) !important; }
+
+        /* Icon visibility in light mode */
+        [data-theme="light"] i, [data-theme="blue-green"] i {
+            stroke-width: 2.5px; /* Thicker icons for better visibility */
+        }
+
+        [data-theme="light"] #sidebar {
+            background-color: #ffffff;
+            border-right: 1.5px solid var(--border-color);
         }
 
         body {
             background-color: var(--bg-primary);
             color: var(--text-primary);
             overflow-x: hidden;
-            transition: background-color 0.3s ease, color 0.3s ease;
+            transition: background-color 0.2s ease, color 0.2s ease;
         }
         .glass {
             background: var(--glass-bg);
-            backdrop-filter: blur(12px);
+            backdrop-filter: blur(16px);
             border: 1px solid var(--border-color);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
         .custom-scrollbar::-webkit-scrollbar {
             width: 6px;
@@ -150,31 +247,35 @@
                     <i data-lucide="layout-dashboard" class="w-5 h-5 shrink-0"></i>
                     <span class="font-medium sidebar-text">대시보드</span>
                 </a>
-                <a href="#" onclick="navigate('security')" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-slate-400">
+                <a href="#" onclick="navigate('security')" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-textSecondary">
                     <i data-lucide="shield-check" class="w-5 h-5 shrink-0"></i>
                     <span class="font-medium sidebar-text">보안관리</span>
                 </a>
-                <a href="#" onclick="navigate('tasks')" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-slate-400">
+                <a href="#" onclick="navigate('tasks')" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-textSecondary">
                     <i data-lucide="kanban" class="w-5 h-5 shrink-0"></i>
-                    <span class="font-medium sidebar-text">과제관리</span>
+                    <span class="font-medium sidebar-text">주간진척 리포트</span>
                 </a>
-                <a href="#" onclick="navigate('templates')" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-slate-400">
+                <a href="#" onclick="navigate('templates')" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-textSecondary">
                     <i data-lucide="copy" class="w-5 h-5 shrink-0"></i>
                     <span class="font-medium sidebar-text">Template</span>
                 </a>
                 <div class="pt-6 pb-2 px-4 text-[10px] text-slate-500 uppercase font-bold tracking-widest nav-label">Resources</div>
-                <a href="#" onclick="navigate('helpdesk')" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-slate-400">
+                <a href="#" onclick="navigate('learning')" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-textSecondary">
+                    <i data-lucide="book-open" class="w-5 h-5 shrink-0"></i>
+                    <span class="font-medium sidebar-text">학습자료</span>
+                </a>
+                <a href="#" onclick="navigate('helpdesk')" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-textSecondary">
                     <i data-lucide="message-square" class="w-5 h-5 shrink-0"></i>
                     <span class="font-medium sidebar-text">헬프데스크 (RAG)</span>
                 </a>
-                <a href="#" onclick="navigate('database')" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-slate-400">
+                <a href="#" onclick="navigate('database')" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-textSecondary">
                     <i data-lucide="database" class="w-5 h-5 shrink-0"></i>
                     <span class="font-medium sidebar-text">베스트 과제 DB</span>
                 </a>
                 
                 <div class="pt-4 pb-2 px-4 text-[10px] text-slate-500 uppercase font-bold tracking-widest nav-label">AI Management</div>
                 <div class="space-y-1">
-                    <button onclick="toggleSubmenu('ai-resources')" class="sidebar-item w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 text-slate-400">
+                    <button onclick="toggleSubmenu('ai-resources')" class="sidebar-item w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 text-textSecondary">
                         <div class="flex items-center gap-3">
                             <i data-lucide="cpu" class="w-5 h-5 shrink-0"></i>
                             <span class="font-medium sidebar-text">AI 리소스</span>
@@ -209,7 +310,7 @@
             <!-- Header -->
             <header class="h-16 glass border-b border-slate-800 flex items-center justify-between px-6 z-10">
                 <div class="flex items-center gap-4">
-                    <button onclick="toggleSidebar()" class="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-slate-800 transition-all text-slate-400" title="Toggle Sidebar">
+                    <button onclick="toggleSidebar()" class="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-slate-800 transition-all text-textSecondary" title="Toggle Sidebar">
                         <i data-lucide="panel-left" class="w-5 h-5"></i>
                     </button>
                     <div class="h-6 w-[1px] bg-slate-800 mx-1"></div>
@@ -224,13 +325,13 @@
                     <div class="flex items-center gap-3">
                         <!-- Theme Switcher -->
                         <div class="flex bg-slate-800/50 p-1 rounded-xl border border-slate-700/50">
-                            <button onclick="setTheme('dark')" id="theme-dark" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-700 transition-all text-slate-400" title="Dark Mode">
+                            <button onclick="setTheme('dark')" id="theme-dark" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-700 transition-all text-textSecondary" title="Dark Mode">
                                 <i data-lucide="moon" class="w-4 h-4"></i>
                             </button>
-                            <button onclick="setTheme('white')" id="theme-white" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-700 transition-all text-slate-400" title="White Mode">
+                            <button onclick="setTheme('light')" id="theme-light" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-700 transition-all text-textSecondary" title="Light Mode">
                                 <i data-lucide="sun" class="w-4 h-4"></i>
                             </button>
-                            <button onclick="setTheme('gray-sky')" id="theme-gray-sky" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-700 transition-all text-slate-400" title="Gray & Sky Blue Mode">
+                            <button onclick="setTheme('blue-green')" id="theme-blue-green" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-700 transition-all text-textSecondary" title="Blue-Green Mode">
                                 <i data-lucide="palette" class="w-4 h-4"></i>
                             </button>
                         </div>
@@ -257,7 +358,7 @@
                     </div>
                     <div>
                         <h3 class="text-3xl font-bold tracking-tight">AI 전환(AX) 보안 서약</h3>
-                        <p class="mt-2 text-slate-400">안전한 기업 AI 생태계 조성을 위해 보안 규정 준수가 필요합니다.</p>
+                        <p class="mt-2 text-textSecondary">안전한 기업 AI 생태계 조성을 위해 보안 규정 준수가 필요합니다.</p>
                     </div>
                     
                     <div class="text-left space-y-4 p-6 bg-slate-800/50 rounded-2xl border border-slate-700/50 max-h-60 overflow-y-auto custom-scrollbar text-slate-300 text-sm">
@@ -344,6 +445,156 @@
         </div>
     </div>
 
+    <!-- Resource Management Modal (Unified for Models, Users, Infra, URLs) -->
+    <div id="resource-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[100] hidden items-center justify-center p-4">
+        <div class="glass w-full max-w-lg p-8 rounded-[2.5rem] border border-slate-800 space-y-6 shadow-2xl animate-fade-in">
+            <div class="flex justify-between items-center">
+                <h4 id="resource-modal-title" class="text-2xl font-bold">리소스 관리</h4>
+                <button onclick="closeResourceModal()" class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-slate-700 transition-all">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div id="resource-form-container" class="space-y-4">
+                <!-- Type-specific form injected here -->
+            </div>
+            <div class="flex gap-3">
+                <button onclick="closeResourceModal()" class="flex-1 py-4 bg-slate-800 hover:bg-slate-700 rounded-2xl font-bold transition-all">취소</button>
+                <button onclick="saveResourceAction()" class="flex-1 py-4 bg-primary hover:bg-primary/80 text-white rounded-2xl font-bold transition-all shadow-lg shadow-primary/20">저장하기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Best Task Detail View Modal -->
+    <div id="best-task-detail-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[105] hidden items-center justify-center p-4">
+        <div class="glass w-full max-w-3xl p-0 rounded-[2.5rem] border border-slate-800 shadow-2xl animate-fade-in max-h-[90vh] overflow-hidden flex flex-col">
+            <div class="p-8 border-b border-slate-800 flex justify-between items-start">
+                <div class="space-y-2">
+                    <div class="flex items-center gap-2">
+                        <span id="detail-dept" class="px-2 py-1 bg-primary/10 text-primary text-[10px] font-bold rounded-lg uppercase tracking-wider"></span>
+                        <span id="detail-roi" class="px-2 py-1 bg-green-500/10 text-green-400 text-[10px] font-bold rounded-lg uppercase tracking-wider"></span>
+                    </div>
+                    <h4 id="detail-title" class="text-3xl font-bold"></h4>
+                </div>
+                <button onclick="closeBestTaskDetail()" class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-slate-700 transition-all">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="p-8 overflow-y-auto custom-scrollbar space-y-8 flex-1">
+                <div>
+                    <h5 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                        <i data-lucide="text-quote" class="w-3 h-3"></i> 과제 개요 및 성과
+                    </h5>
+                    <p id="detail-desc" class="text-slate-300 leading-relaxed"></p>
+                </div>
+
+                <div id="detail-code-section" class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <h5 class="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                            <i data-lucide="code" class="w-3 h-3"></i> 핵심 로직 (Source Code)
+                        </h5>
+                        <button onclick="copyDetailCode()" class="text-[10px] text-primary hover:underline flex items-center gap-1">
+                            <i data-lucide="copy" class="w-3 h-3"></i> Copy Code
+                        </button>
+                    </div>
+                    <pre class="p-6 bg-slate-950 rounded-2xl border border-slate-800 overflow-x-auto"><code id="detail-code" class="text-xs font-mono text-blue-400"></code></pre>
+                </div>
+
+                <div id="detail-attachments-section" class="space-y-3">
+                    <h5 class="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                        <i data-lucide="file-text" class="w-3 h-3"></i> 기술 문서 및 산출물
+                    </h5>
+                    <div id="detail-attachments-list" class="grid grid-cols-2 gap-3">
+                        <!-- Dynamic list -->
+                    </div>
+                </div>
+            </div>
+            <div class="p-6 bg-slate-900/50 border-t border-slate-800 flex justify-end gap-3">
+                <button onclick="closeBestTaskDetail()" class="px-8 py-3 bg-slate-800 hover:bg-slate-700 rounded-xl font-bold transition-all text-sm">닫기</button>
+                <button id="detail-edit-btn" class="px-8 py-3 bg-primary hover:bg-primary/80 text-white rounded-xl font-bold transition-all text-sm shadow-lg shadow-primary/20">수정하기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Best Task Management Modal (Detailed) -->
+    <div id="best-task-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[100] hidden items-center justify-center p-4">
+        <div class="glass w-full max-w-2xl p-8 rounded-[2.5rem] border border-slate-800 space-y-6 shadow-2xl animate-fade-in max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center text-primary">
+                        <i data-lucide="award" class="w-6 h-6"></i>
+                    </div>
+                    <h4 id="best-task-modal-title" class="text-2xl font-bold">성공 사례 등록/수정</h4>
+                </div>
+                <button onclick="closeBestTaskModal()" class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-slate-700 transition-all">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-6">
+                <!-- Section 1: Basic Info -->
+                <div class="space-y-4">
+                    <h5 class="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                        <i data-lucide="info" class="w-3 h-3"></i> 기본 정보 및 프로젝트 메타데이터
+                    </h5>
+                    <input type="text" id="best-tpl-title" placeholder="과제명 (예: 글로벌 고객 CS 자동 응답 시스템)" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary">
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="text" id="best-tpl-dept" placeholder="담당 부서" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary">
+                        <input type="text" id="best-tpl-duration" placeholder="개발 기간 (예: 3개월)" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="text" id="best-tpl-roi" placeholder="대표 ROI (예: 3,200h/yr)" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary">
+                        <select id="best-tpl-visibility" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary">
+                            <option value="Public">전사 공개 (Public)</option>
+                            <option value="Internal">부서 내 공개 (Internal)</option>
+                            <option value="Private">비공개 (Private)</option>
+                        </select>
+                    </div>
+                    <input type="text" id="best-tpl-models" placeholder="사용 AI 모델 (쉼표 구분: Gemini 1.5 Pro, GPT-4o)" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary">
+                    <input type="text" id="best-tpl-tags" placeholder="기술 태그 (RAG, Automation, Python)" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary">
+                    <textarea id="best-tpl-desc" placeholder="과제에 대한 핵심 요약을 입력하세요" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary h-20 resize-none"></textarea>
+                    <textarea id="best-tpl-roi-detail" placeholder="정량적/정성적 기대효과 상세 내용을 입력하세요" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary h-20 resize-none"></textarea>
+                </div>
+
+                <!-- Section 2: Code Snippet -->
+                <div class="space-y-4">
+                    <h5 class="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                        <i data-lucide="code" class="w-3 h-3"></i> 코드 스니펫 (Python/JS 등)
+                    </h5>
+                    <div class="relative group">
+                        <textarea id="best-tpl-code" placeholder="# 주요 로직 코드를 입력하세요" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-xs focus:outline-none focus:border-primary h-40 resize-none font-mono text-slate-300"></textarea>
+                        <div class="absolute top-3 right-3 text-[10px] text-slate-600 font-mono">APP_LOGIC_V1.PY</div>
+                    </div>
+                </div>
+
+                <!-- Section 3: Attachments -->
+                <div class="space-y-4">
+                    <h5 class="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                        <i data-lucide="file-text" class="w-3 h-3"></i> 관련 문서 및 산출물
+                    </h5>
+                    <div id="best-tpl-attachments-list" class="space-y-2">
+                        <!-- Dynamic attachment list -->
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="text" id="best-tpl-attach-name" placeholder="문서명" class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-primary">
+                        <button onclick="addAttachmentItem()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-bold rounded-xl transition-all flex items-center gap-2">
+                            <i data-lucide="plus" class="w-3 h-3"></i> 추가
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 pt-2">
+                    <input type="checkbox" id="best-tpl-featured" class="w-4 h-4 rounded border-slate-800 bg-slate-900 text-primary focus:ring-primary">
+                    <label for="best-tpl-featured" class="text-sm text-textSecondary font-medium">명예의 전당 강조 표시 (Featured)</label>
+                </div>
+            </div>
+
+            <div class="flex gap-3 pt-4 border-t border-slate-800/50">
+                <button onclick="closeBestTaskModal()" class="flex-1 py-4 bg-slate-800 hover:bg-slate-700 rounded-2xl font-bold transition-all">취소</button>
+                <button onclick="saveBestTaskAction()" class="flex-1 py-4 bg-primary hover:bg-primary/80 text-white rounded-2xl font-bold transition-all shadow-lg shadow-primary/20">저장하기</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Custom Confirm Modal -->
     <div id="confirm-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[110] hidden items-center justify-center p-4">
         <div class="glass w-full max-w-sm p-8 rounded-3xl space-y-6 text-center shadow-2xl border-red-500/20">
@@ -352,7 +603,7 @@
             </div>
             <div>
                 <h4 class="text-xl font-bold">정말 삭제하시겠습니까?</h4>
-                <p class="text-sm text-slate-400 mt-2">삭제된 템플릿은 복구할 수 없습니다.</p>
+                <p class="text-sm text-textSecondary mt-2">삭제된 템플릿은 복구할 수 없습니다.</p>
             </div>
             <div class="flex gap-3">
                 <button onclick="closeConfirmModal()" class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 rounded-xl font-bold transition-all">취소</button>
@@ -367,9 +618,15 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 
     <script>
-        // Firebase Configuration (Placeholders)
+        /* 
+         * [Firebase 연동 가이드]
+         * 1. Firebase Console (https://console.firebase.google.com/) 접속
+         * 2. 새 프로젝트 생성 후 '웹 앱' 추가
+         * 3. 아래 firebaseConfig 객체에 발급받은 키 정보를 입력하세요.
+         * 4. 'Firestore Database' 메뉴에서 데이터베이스를 생성(테스트 모드 권장)하세요.
+         */
         const firebaseConfig = {
-            apiKey: "AIzaSy...YOUR_KEY",
+            apiKey: "AIzaSy...YOUR_KEY", // 실제 API Key로 교체하세요
             authDomain: "ax-control-tower.firebaseapp.com",
             projectId: "ax-control-tower",
             storageBucket: "ax-control-tower.appspot.com",
@@ -381,32 +638,169 @@
         let isFirebaseActive = false;
 
         try {
-            if (firebaseConfig.apiKey !== "AIzaSy...YOUR_KEY") {
+            // Placeholder 키가 아닌 실제 키가 입력되었는지 확인
+            if (firebaseConfig.apiKey && !firebaseConfig.apiKey.includes("YOUR_KEY")) {
                 firebase.initializeApp(firebaseConfig);
                 db = firebase.firestore();
                 isFirebaseActive = true;
-                console.log("🚀 Firebase Initialized Successfully");
+                console.log("🚀 [Firebase] 실시간 백엔드 연결 성공");
             } else {
-                console.warn("⚠️ Firebase config placeholder detected. Running in Mock Mode.");
+                console.warn("⚠️ [Firebase] 설정값이 없습니다. Mock(LocalStorage) 모드로 동작합니다.");
             }
         } catch (error) {
-            console.error("❌ Firebase Initialization Error:", error);
+            console.error("❌ [Firebase] 초기화 오류:", error);
         }
 
+        /**
+         * FirebaseManager: Firestore 데이터 CRUD 및 실시간 동기화 전담 객체
+         */
         const FirebaseManager = {
+            // --- 과제 (Tasks) 관련 ---
             async syncTasks(localTasks) {
                 if (!isFirebaseActive) return localTasks;
                 try {
-                    const snapshot = await db.collection('tasks').get();
+                    const snapshot = await db.collection('tasks').orderBy('updatedAt', 'desc').get();
                     if (snapshot.empty && localTasks.length > 0) {
+                        // DB가 비어있으면 로컬 데이터를 초기 업로드
                         for (const task of localTasks) {
-                            await db.collection('tasks').add({ ...task, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+                            await db.collection('tasks').add({ 
+                                ...task, 
+                                updatedAt: firebase.firestore.FieldValue.serverTimestamp() 
+                            });
+                        }
+                        return localTasks;
+                    }
+                    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                } catch (e) { 
+                    console.error("Task Sync Error:", e);
+                    return localTasks; 
+                }
+            },
+
+            async saveTask(task) {
+                if (!isFirebaseActive) return;
+                try {
+                    const data = { ...task, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+                    if (task.id && typeof task.id === 'string' && task.id.length > 15) {
+                        await db.collection('tasks').doc(task.id).set(data, { merge: true });
+                    } else {
+                        await db.collection('tasks').add(data);
+                    }
+                } catch (e) { console.error("Task Save Error:", e); }
+            },
+
+            // --- 템플릿 (Templates) 관련 ---
+            async syncTemplates(localTemplates) {
+                if (!isFirebaseActive) return localTemplates;
+                try {
+                    const snapshot = await db.collection('templates').get();
+                    if (snapshot.empty && localTemplates.length > 0) {
+                        for (const t of localTemplates) {
+                            await db.collection('templates').doc(String(t.id)).set({
+                                ...t,
+                                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                            });
+                        }
+                        return localTemplates;
+                    }
+                    return snapshot.docs.map(doc => ({ ...doc.data() }));
+                } catch (e) { return localTemplates; }
+            },
+
+            async saveTemplate(template) {
+                if (!isFirebaseActive) return;
+                try {
+                    await db.collection('templates').doc(String(template.id)).set({
+                        ...template,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    }, { merge: true });
+                } catch (e) { console.error("Template Save Error:", e); }
+            },
+
+            async deleteTemplate(id) {
+                if (!isFirebaseActive) return;
+                try {
+                    await db.collection('templates').doc(String(id)).delete();
+                } catch (e) { console.error("Template Delete Error:", e); }
+            },
+
+            // --- AI 리소스 (Models, Users, Infra, URLs) 관련 ---
+            async syncAIResources(localResources) {
+                if (!isFirebaseActive) return localResources;
+                try {
+                    const collections = ['models', 'users', 'infra', 'urls'];
+                    const syncedData = { ...localResources };
+                    
+                    for (const col of collections) {
+                        const snapshot = await db.collection(`ai_${col}`).get();
+                        if (snapshot.empty && localResources[col].length > 0) {
+                            for (const item of localResources[col]) {
+                                await db.collection(`ai_${col}`).doc(String(item.id)).set({
+                                    ...item,
+                                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                                });
+                            }
+                        } else if (!snapshot.empty) {
+                            syncedData[col] = snapshot.docs.map(doc => ({ ...doc.data() }));
                         }
                     }
-                    const dbTasks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    return dbTasks.length > 0 ? dbTasks : localTasks;
+                    return syncedData;
+                } catch (e) { return localResources; }
+            },
+
+            async saveAIResource(type, item) {
+                if (!isFirebaseActive) return;
+                try {
+                    await db.collection(`ai_${type}`).doc(String(item.id)).set({
+                        ...item,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    }, { merge: true });
+                } catch (e) { console.error(`AI Resource (${type}) Save Error:`, e); }
+            },
+
+            async deleteAIResource(type, id) {
+                if (!isFirebaseActive) return;
+                try {
+                    await db.collection(`ai_${type}`).doc(String(id)).delete();
+                } catch (e) { console.error(`AI Resource (${type}) Delete Error:`, e); }
+            },
+
+            // --- 베스트 과제 (Best Tasks) 관련 ---
+            async syncBestTasks(localTasks) {
+                if (!isFirebaseActive) return localTasks;
+                try {
+                    const snapshot = await db.collection('best_tasks').get();
+                    if (snapshot.empty && localTasks.length > 0) {
+                        for (const t of localTasks) {
+                            await db.collection('best_tasks').doc(String(t.id)).set({
+                                ...t,
+                                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                            });
+                        }
+                        return localTasks;
+                    }
+                    return snapshot.docs.map(doc => ({ ...doc.data() }));
                 } catch (e) { return localTasks; }
             },
+
+            async saveBestTask(task) {
+                if (!isFirebaseActive) return;
+                try {
+                    await db.collection('best_tasks').doc(String(task.id)).set({
+                        ...task,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    }, { merge: true });
+                } catch (e) { console.error("Best Task Save Error:", e); }
+            },
+
+            async deleteBestTask(id) {
+                if (!isFirebaseActive) return;
+                try {
+                    await db.collection('best_tasks').doc(String(id)).delete();
+                } catch (e) { console.error("Best Task Delete Error:", e); }
+            },
+
+            // --- 보안 로그 및 통계 관련 ---
             async logSecurityScan(report) {
                 if (!isFirebaseActive) return;
                 try {
@@ -416,9 +810,11 @@
                     });
                 } catch (e) {}
             },
+
             listenToStats(callback) {
                 if (!isFirebaseActive) return;
-                db.collection('security_logs').onSnapshot(snapshot => {
+                // 최근 보안 로그 기반 실시간 통계 산출
+                db.collection('security_logs').orderBy('timestamp', 'desc').limit(100).onSnapshot(snapshot => {
                     const logs = snapshot.docs.map(doc => doc.data());
                     if (logs.length === 0) return;
                     callback({
@@ -430,6 +826,7 @@
             }
         };
 
+
         // State Management
         let currentState = {
             currentPage: 'dashboard',
@@ -440,27 +837,152 @@
             templateSearch: '',
             chatHistory: [
                 { role: 'ai', message: '안녕하세요! AX Control Tower 헬프데스크입니다. 사내 규정이나 AI 활용 지침에 대해 궁금한 점을 물어보세요.', sources: [] }
+            ],
+            editingResourceId: null,
+            editingResourceType: null
+        };
+
+        // AI Resources Data
+        let aiResources = JSON.parse(localStorage.getItem('ax_ai_resources')) || {
+            models: [
+                { id: 1, name: 'Gemini 1.5 Pro', plan: 'Enterprise', status: 'Active', provider: 'Google Cloud' },
+                { id: 2, name: 'GPT-4o', plan: 'Team Plan', status: 'Active', provider: 'OpenAI' },
+                { id: 3, name: 'Claude 3.5 Sonnet', plan: 'Pro', status: 'Pending', provider: 'Anthropic' }
+            ],
+            users: [
+                { id: 1, name: '김철수', dept: '마케팅팀', model: 'GPT-4o', role: 'User', status: 'Active' },
+                { id: 2, name: '이영희', dept: '인사팀', model: 'Gemini 1.5 Pro', role: 'Manager', status: 'Active' },
+                { id: 3, name: '박지민', dept: '개발팀', model: 'Claude 3.5', role: 'Admin', status: 'Active' },
+                { id: 4, name: '최동욱', dept: '법무팀', model: 'Gemini 1.5 Pro', role: 'User', status: 'Inactive' }
+            ],
+            infra: [
+                { id: 1, name: 'GPU Inference Server', status: 'Stable', utilization: 78, type: 'GPU' },
+                { id: 2, name: 'Vector Database (Pinecone)', status: 'Stable', utilization: 42, type: 'DB' }
+            ],
+            urls: [
+                { id: 1, name: 'Internal AI Lab', url: 'https://ai-lab.company.com', desc: '연구용 내부 AI 도구 모음', type: 'Internal' },
+                { id: 2, name: 'Gemini Studio', url: 'https://aistudio.google.com', desc: 'Gemini API 키 관리 및 테스트', type: 'External' },
+                { id: 3, name: 'AX Documentation', url: 'https://docs.ax.company.com', desc: '전사 AX 가이드 및 보안 지침', type: 'Internal' }
             ]
         };
 
-        // Project Data for Task Tracker
-        let taskData = JSON.parse(localStorage.getItem('ax_task_data')) || [
-            { 부서명: '경영지원팀', 담당자: '강진영', 과제명: '연차메일 발송', 단계: '완료', '진척도(W45)': 100, '진척도(W44)': 80 },
-            { 부서명: '경영지원팀', 담당자: '조일영', 과제명: '사내규정', 단계: '현업파일럿', '진척도(W45)': 80, '진척도(W44)': 60 },
-            { 부서명: '해외지원팀', 담당자: '김미래', 과제명: '원가분석', 단계: '현업파일럿', '진척도(W45)': 80, '진척도(W44)': 60 },
-            { 부서명: '영업1팀', 담당자: '이동윤', 과제명: '고객사 판매수량정보', 단계: '완료', '진척도(W45)': 100, '진척도(W44)': 60 },
-            { 부서명: '재무팀', 담당자: '조준용', 과제명: '환율정보', 단계: '완료', '진척도(W45)': 100, '진척도(W44)': 40 },
-            { 부서명: '재무팀', 담당자: '조준용', 과제명: '재무제표', 단계: '검증', '진척도(W45)': 60, '진척도(W44)': 40 },
-            { 부서명: '개발1팀', 담당자: '개발담당자', 과제명: 'Bom 전환 및 부품실장도 작성', 단계: '현업파일럿', '진척도(W45)': 80, '진척도(W44)': 40 },
-            { 부서명: 'TSP', 담당자: '조영섭', 과제명: '자재발주', 단계: '구현방안확정', '진척도(W45)': 20, '진척도(W44)': 20 }
+        function saveAIResources(type = null, item = null) {
+            localStorage.setItem('ax_ai_resources', JSON.stringify(aiResources));
+            if (type && item) {
+                FirebaseManager.saveAIResource(type, item);
+            }
+        }
+
+        // Best Tasks Data (Hall of Fame)
+        let bestTasks = JSON.parse(localStorage.getItem('ax_best_tasks')) || [
+            { 
+                id: 1, 
+                title: '글로벌 고객 CS 자동 응답 시스템', 
+                dept: '고객지원팀', 
+                roi: '3,200h/yr', 
+                tags: ['RAG', 'Python', 'LLM'], 
+                likes: 124, 
+                comments: 45, 
+                isFeatured: true,
+                desc: 'Gemini 1.5 Pro와 Vector DB를 연동하여 다국어 CS 문의에 대해 95% 이상의 정확도로 자동 응답을 수행하는 시스템입니다.',
+                code: 'import google.generativeai as genai\n\n# RAG logic here\n...',
+                attachments: [{ name: 'CS_Architecture.pdf', url: '#' }],
+                models: ['Gemini 1.5 Pro', 'Claude 3.5'],
+                duration: '3개월',
+                roiDetail: '상담사 업무 시간 40% 단축 및 야간 응대율 100% 달성',
+                visibility: 'Public'
+            },
+            { 
+                id: 2, 
+                title: '재무제표 자동 분석 및 요약 봇', 
+                dept: '재무팀', 
+                roi: '1,500h/yr', 
+                tags: ['Automation', 'Finance'], 
+                likes: 89, 
+                comments: 21, 
+                isFeatured: false,
+                desc: '복잡한 엑셀 재무 데이터를 마크다운 형식의 시각화 보고서로 자동 변환하여 의사결정 속도를 3배 향후시켰습니다.',
+                code: 'import pandas as pd\n\ndef analyze_finance(file):\n...',
+                attachments: [],
+                models: ['GPT-4o'],
+                duration: '1.5개월',
+                roiDetail: '월간 결산 보고서 작성 시간 5일 -> 1일로 단축',
+                visibility: 'Public'
+            }
         ];
+
+        function saveBestTasks(item = null) {
+            localStorage.setItem('ax_best_tasks', JSON.stringify(bestTasks));
+            if (item) {
+                FirebaseManager.saveBestTask(item);
+            }
+        }
+
+        // Project Data for Task Tracker (Updated for Report View)
+        const DEFAULT_TASK_DATA = [
+            { 부서명: '경영지원팀', 담당자: '담당자 A', 과제명: '연차메일 발송', 단계: '완료', 진척도: '100%', 진척도_이전: '80%', 구현방안확정: 'O', 테스트중: 'O', 검증: 'O', 현업파일럿: 'O', 완료: 'O' },
+            { 부서명: '경영지원팀', 담당자: '담당자 A', 과제명: '보험금액', 단계: '완료', 진척도: '100%', 진척도_이전: '80%', 구현방안확정: 'O', 테스트중: 'O', 검증: 'O', 현업파일럿: 'O', 완료: 'O' },
+            { 부서명: '경영지원팀', 담당자: '담당자 A', 과제명: '인사월보', 단계: '완료', 진척도: '100%', 진척도_이전: '40%', 구현방안확정: 'O', 테스트중: 'O', 검증: 'O', 현업파일럿: 'O', 완료: 'O' },
+            { 부서명: '경영지원팀', 담당자: '담당자 B', 과제명: '사내규정', 단계: '현업파일럿', 진척도: '80%', 진척도_이전: '60%', 구현방안확정: 'O', 테스트중: 'O', 검증: 'O', 현업파일럿: 'O', 완료: '' },
+            { 부서명: '해외지원팀', 담당자: '담당자 C', 과제명: '내국물품반출목록신고', 단계: '완료', 진척도: '100%', 진척도_이전: '100%', 구현방안확정: 'O', 테스트중: 'O', 검증: 'O', 현업파일럿: 'O', 완료: 'O' },
+            { 부서명: '해외지원팀', 담당자: '담당자 D', 과제명: '출하인보이스 작성', 단계: '완료', 진척도: '100%', 진척도_이전: '100%', 구현방안확정: 'O', 테스트중: 'O', 검증: 'O', 현업파일럿: 'O', 완료: 'O' },
+            { 부서명: '해외지원팀', 담당자: '담당자 D', 과제명: '인보이스 오류검출', 단계: '완료', 진척도: '100%', 진척도_이전: '80%', 구현방안확정: 'O', 테스트중: 'O', 검증: 'O', 현업파일럿: 'O', 완료: 'O' },
+            { 부서명: '해외지원팀', 담당자: '담당자 E', 과제명: '원가분석', 단계: '현업파일럿', 진척도: '80%', 진척도_이전: '60%', 구현방안확정: 'O', 테스트중: 'O', 검증: 'O', 현업파일럿: 'O', 완료: '' },
+            { 부서명: '영업1팀', 담당자: '담당자 F', 과제명: '고객사FCST', 단계: '완료', 진척도: '100%', 진척도_이전: '40%', 구현방안확정: 'O', 테스트중: 'O', 검증: 'O', 현업파일럿: 'O', 완료: 'O' },
+            { 부서명: '영업1팀', 담당자: '담당자 F', 과제명: 'RVC율', 단계: '완료', 진척도: '100%', 진척도_이전: '40%', 구현방안확정: 'O', 테스트중: 'O', 검증: 'O', 현업파일럿: 'O', 완료: 'O' },
+            { 부서명: '영업1팀', 담당자: '담당자 G', 과제명: '자재과부족', 단계: '현업파일럿', 진척도: '80%', 진척도_이전: '60%', 구현방안확정: 'O', 테스트중: 'O', 검증: 'O', 현업파일럿: 'O', 완료: '' },
+            { 부서명: '영업1팀', 담당자: '담당자 H', 과제명: '고객사 판매수량정보', 단계: '완료', 진척도: '100%', 진척도_이전: '60%', 구현방안확정: 'O', 테스트중: 'O', 검증: 'O', 현업파일럿: 'O', 완료: 'O' },
+            { 부서명: '재무팀', 담당자: '담당자 I', 과제명: '환율정보', 단계: '완료', 진척도: '100%', 진척도_이전: '40%', 구현방안확정: 'O', 테스트중: 'O', 검증: 'O', 현업파일럿: 'O', 완료: 'O' },
+            { 부서명: '재무팀', 담당자: '담당자 I', 과제명: '시산표', 단계: '검증', 진척도: '60%', 진척도_이전: '40%', 구현방안확정: 'O', 테스트중: 'O', 검증: 'O', 현업파일럿: '', 완료: '' },
+            { 부서명: '재무팀', 담당자: '담당자 I', 과제명: '재무제표', 단계: '검증', 진척도: '60%', 진척도_이전: '40%', 구현방안확정: 'O', 테스트중: 'O', 검증: 'O', 현업파일럿: '', 완료: '' },
+            { 부서명: '개발1팀', 담당자: '담당자 Q', 과제명: 'Bom 전환 및 부품실장도 작성', 단계: '현업파일럿', 진척도: '80%', 진척도_이전: '40%', 구현방안확정: 'O', 테스트중: 'O', 검증: 'O', 현업파일럿: 'O', 완료: '' },
+            { 부서명: '제조', 담당자: '담당자 J', 과제명: 'SAMPLE생산계획', 단계: '완료', 진척도: '100%', 진척도_이전: '100%', 구현방안확정: 'O', 테스트중: 'O', 검증: 'O', 현업파일럿: 'O', 완료: 'O' },
+            { 부서명: '제조', 담당자: '담당자 J', 과제명: 'SAMPLE자재발주', 단계: '완료', 진척도: '100%', 진척도_이전: '100%', 구현방안확정: 'O', 테스트중: 'O', 검증: 'O', 현업파일럿: 'O', 완료: 'O' },
+            { 부서명: 'TSP', 담당자: '담당자 K', 과제명: '생산계획', 단계: '검증', 진척도: '60%', 진척도_이전: '40%', 구현방안확정: 'O', 테스트중: 'O', 검증: 'O', 현업파일럿: '', 완료: '' },
+            { 부서명: 'TSP', 담당자: '담당자 K', 과제명: '자재발주', 단계: '구현방안확정', 진척도: '20%', 진척도_이전: '20%', 구현방안확정: 'O', 테스트중: '', 검증: '', 현업파일럿: '', 완료: '' },
+            { 부서명: 'TSP', 담당자: '담당자 K', 과제명: '불량개선', 단계: '구현방안확정', 진척도: '20%', 진척도_이전: '20%', 구현방안확정: 'O', 테스트중: '', 검증: '', 현업파일럿: '', 완료: '' },
+            { 부서명: '내작 SMT', 담당자: '담당자 L', 과제명: '개발샘플출하계획표', 단계: '완료', 진척도: '100%', 진척도_이전: '100%', 구현방안확정: 'O', 테스트중: 'O', 검증: 'O', 현업파일럿: 'O', 완료: 'O' },
+            { 부서명: '내작 SMT', 담당자: '담당자 L', 과제명: '생산프로그램', 단계: '완료', 진척도: '100%', 진척도_이전: '80%', 구현방안확정: 'O', 테스트중: 'O', 검증: 'O', 현업파일럿: 'O', 완료: 'O' },
+            { 부서명: '제조기술팀', 담당자: '담당자 M', 과제명: '불량분석 & 모니터링', 단계: '완료', 진척도: '100%', 진척도_이전: '60%', 구현방안확정: 'O', 테스트중: 'O', 검증: 'O', 현업파일럿: 'O', 완료: 'O' },
+            { 부서명: '제조기술팀', 담당자: '담당자 M', 과제명: '제조공정도', 단계: '현업파일럿', 진척도: '80%', 진척도_이전: '60%', 구현방안확정: 'O', 테스트중: 'O', 검증: 'O', 현업파일럿: 'O', 완료: '' },
+            { 부서명: '제조기술팀', 담당자: '담당자 M', 과제명: '작업지도서', 단계: '현업파일럿', 진척도: '80%', 진척도_이전: '80%', 구현방안확정: 'O', 테스트중: 'O', 검증: 'O', 현업파일럿: 'O', 완료: '' },
+            { 부서명: '품질팀', 담당자: '담당자 N', 과제명: 'KPI지표', 단계: '완료', 진척도: '100%', 진척도_이전: '80%', 구현방안확정: 'O', 테스트중: 'O', 검증: 'O', 현업파일럿: 'O', 완료: 'O' },
+            { 부서명: '구매팀', 담당자: '담당자 O', 과제명: '자재소요량 전달', 단계: '검증', 진척도: '60%', 진척도_이전: '40%', 구현방안확정: 'O', 테스트중: 'O', 검증: 'O', 현업파일럿: '', 완료: '' },
+            { 부서명: '구매팀', 담당자: '담당자 O', 과제명: '부자재발주자동화', 단계: '완료', 진척도: '100%', 진척도_이전: '60%', 구현방안확정: 'O', 테스트중: 'O', 검증: 'O', 현업파일럿: 'O', 완료: 'O' },
+            { 부서명: '구매팀', 담당자: '담당자 O', 과제명: '매입 부품 관리', 단계: '현업파일럿', 진척도: '80%', 진척도_이전: '60%', 구현방안확정: 'O', 테스트중: 'O', 검증: 'O', 현업파일럿: 'O', 완료: '' },
+            { 부서명: '자동화팀', 담당자: '담당자 P', 과제명: '치공구/검사기 발주', 단계: '완료', 진척도: '100%', 진척도_이전: '100%', 구현방안확정: 'O', 테스트중: 'O', 검증: 'O', 현업파일럿: 'O', 완료: 'O' },
+            { 부서명: '자동화팀', 담당자: '담당자 P', 과제명: '견적서 및 품의서', 단계: '완료', 진척도: '100%', 진척도_이전: '100%', 구현방안확정: 'O', 테스트중: 'O', 검증: 'O', 현업파일럿: 'O', 완료: 'O' },
+            { 부서명: '자동화팀', 담당자: '담당자 P', 과제명: '출하LIST 및 확인서', 단계: '완료', 진척도: '100%', 진척도_이전: '40%', 구현방안확정: 'O', 테스트중: 'O', 검증: 'O', 현업파일럿: 'O', 완료: 'O' }
+        ];
+
+        let taskData = JSON.parse(localStorage.getItem('ax_task_data')) || DEFAULT_TASK_DATA;
+
+        // Force reset if empty
+        if (!taskData || taskData.length === 0) {
+            taskData = DEFAULT_TASK_DATA;
+        }
 
         // Sync with Firebase
         async function initDataSync() {
+            // 1. 과제 데이터 동기화
             taskData = await FirebaseManager.syncTasks(taskData);
-            if (currentState.currentPage === 'tasks') renderTasks();
             
-            // Listen for Dashboard Stats
+            // 2. 템플릿 데이터 동기화
+            templates = await FirebaseManager.syncTemplates(templates);
+
+            // 3. AI 리소스 데이터 동기화
+            aiResources = await FirebaseManager.syncAIResources(aiResources);
+
+            // 4. 베스트 과제 데이터 동기화
+            bestTasks = await FirebaseManager.syncBestTasks(bestTasks);
+            
+            if (currentState.currentPage === 'tasks') renderTasks();
+            if (currentState.currentPage === 'templates') renderPage('templates');
+            if (currentState.currentPage === 'learning') renderPage('learning');
+            if (currentState.currentPage === 'hall-of-fame') renderPage('hall-of-fame');
+            if (currentState.currentPage.startsWith('resource-')) renderPage(currentState.currentPage);
+            
+            // 5. 대시보드 실시간 통계 리스너 연결
             FirebaseManager.listenToStats((stats) => {
                 if (currentState.currentPage === 'dashboard') {
                     const healthScore = document.querySelector('.border-t-4.border-primary h4');
@@ -474,7 +996,6 @@
 
         function saveTaskData() {
             localStorage.setItem('ax_task_data', JSON.stringify(taskData));
-            // In a full implementation, we'd also sync individual changes back to Firestore here
         }
 
         // Security Review Rules - Expanded
@@ -539,6 +1060,9 @@
 
         // Theme Management
         function setTheme(theme) {
+            // Handle legacy 'white' theme requests if they come from old localStorage
+            if (theme === 'white') theme = 'light';
+            
             currentState.theme = theme;
             document.documentElement.setAttribute('data-theme', theme);
             localStorage.setItem('ax_theme', theme);
@@ -546,12 +1070,12 @@
             // Update UI
             document.querySelectorAll('[id^="theme-"]').forEach(btn => {
                 btn.classList.remove('bg-primary', 'text-white');
-                btn.classList.add('text-slate-400');
+                btn.classList.add('text-textSecondary');
             });
             const activeBtn = document.getElementById(`theme-${theme}`);
             if (activeBtn) {
                 activeBtn.classList.add('bg-primary', 'text-white');
-                activeBtn.classList.remove('text-slate-400');
+                activeBtn.classList.remove('text-textSecondary');
             }
         }
 
@@ -595,16 +1119,16 @@
             // Update UI Sidebar
             document.querySelectorAll('.sidebar-item').forEach(item => {
                 item.classList.remove('active');
-                item.classList.add('text-slate-400');
+                item.classList.add('text-textSecondary');
             });
             event.currentTarget.classList.add('active');
-            event.currentTarget.classList.remove('text-slate-400');
+            event.currentTarget.classList.remove('text-textSecondary');
             
             // Update Header Title
             const titles = {
                 'dashboard': '대시보드',
                 'security': '보안관리',
-                'tasks': '과제관리',
+                'tasks': '주간진척 리포트',
                 'templates': 'Template Hub',
                 'database': '베스트 과제 DB',
                 'helpdesk': '헬프데스크 (RAG)',
@@ -625,6 +1149,405 @@
             lucide.createIcons();
         }
 
+        function renderTasks() {
+            const container = document.getElementById('page-container');
+            container.innerHTML = '';
+            
+            // Clean and prepare data once
+            const cleanData = taskData.map((t, idx) => {
+                const cur = parseInt(t.진척도) || 0;
+                const prev = parseInt(t.진척도_이전) || 0;
+                const stage = t.단계 || (cur === 100 ? '완료' : cur >= 80 ? '현업파일럿' : cur >= 60 ? '검증' : cur >= 20 ? '구현방안확정' : '계획');
+                let displayManager = t.담당자 || '담당자';
+                if (displayManager.length <= 3 && !displayManager.startsWith('담당자')) {
+                    displayManager = `담당자 ${String.fromCharCode(65 + (idx % 26))}`;
+                }
+                return { ...t, cur, prev, diff: cur - prev, stage, displayManager };
+            });
+
+            const totalTasks = cleanData.length;
+            const completedTasks = cleanData.filter(t => t.stage === '완료').length;
+            const verificationTasks = cleanData.filter(t => t.stage === '검증' || t.stage === '현업파일럿').length;
+            const confirmedTasks = cleanData.filter(t => t.stage === '구현방안확정').length;
+            
+            const avgProgress = totalTasks > 0 ? Math.round(cleanData.reduce((acc, curr) => acc + curr.cur, 0) / totalTasks) : 0;
+            const prevAvgProgress = totalTasks > 0 ? Math.round(cleanData.reduce((acc, curr) => acc + curr.prev, 0) / totalTasks) : 0;
+            const progressDiff = (avgProgress - prevAvgProgress).toFixed(1);
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'space-y-8 animate-fade-in pb-20';
+            wrapper.innerHTML = `
+                <!-- Dashboard Header -->
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h3 class="text-3xl font-bold">W18(2주차) 주간 Feedback Report</h3>
+                        <p class="text-textSecondary text-sm">전사 AX 과제 이행 현황 및 주간 지표 분석 리포트</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <label class="px-5 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-2xl font-bold transition-all flex items-center gap-2 border border-slate-700 cursor-pointer">
+                            <i data-lucide="upload" class="w-5 h-5"></i> 엑셀 업로드
+                            <input type="file" accept=".xlsx, .xls" onchange="handleExcelUpload(event)" class="hidden">
+                        </label>
+                        <button onclick="exportToExcel()" class="px-5 py-3 bg-primary hover:bg-primary/80 text-white rounded-2xl font-bold transition-all flex items-center gap-2 shadow-lg shadow-primary/20">
+                            <i data-lucide="download" class="w-5 h-5"></i> 리포트 내보내기 (PDF/Excel)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- KPI Cards Section -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="glass p-8 rounded-[2rem] border-b-4 border-[#48bb78]">
+                        <p class="text-[11px] text-slate-500 font-bold uppercase tracking-widest mb-2">진척률</p>
+                        <div class="flex items-baseline gap-2">
+                            <h4 class="text-4xl font-bold">${avgProgress}%</h4>
+                            <span class="text-xs font-bold text-green-500">
+                                ↑ +${progressDiff}%p
+                            </span>
+                        </div>
+                        <p class="text-[10px] text-slate-600 mt-2 italic">이전 주차 대비 크게 상승</p>
+                    </div>
+                    <div class="glass p-8 rounded-[2rem] border-b-4 border-[#9f7aea]">
+                        <p class="text-[11px] text-slate-500 font-bold uppercase tracking-widest mb-2">완료</p>
+                        <div class="flex items-baseline gap-2">
+                            <h4 class="text-4xl font-bold">${completedTasks}건</h4>
+                            <span class="text-xs font-bold text-green-500">↑ +13건</span>
+                        </div>
+                        <p class="text-[10px] text-slate-600 mt-2 font-bold">전체 ${totalTasks}개 과제 중 ${Math.round(completedTasks/totalTasks*100)}%</p>
+                    </div>
+                    <div class="glass p-8 rounded-[2rem] border-b-4 border-[#4299e1]">
+                        <p class="text-[11px] text-slate-500 font-bold uppercase tracking-widest mb-2">검증 & 파일럿</p>
+                        <div class="flex items-baseline gap-2">
+                            <h4 class="text-4xl font-bold">${verificationTasks}건</h4>
+                            <span class="text-xs font-bold text-red-400">↓ -3건</span>
+                        </div>
+                        <p class="text-[10px] text-slate-600 mt-2 font-bold">전체 ${totalTasks}개 과제 중 ${Math.round(verificationTasks/totalTasks*100)}%</p>
+                    </div>
+                    <div class="glass p-8 rounded-[2rem] border-b-4 border-[#ed8936]">
+                        <p class="text-[11px] text-slate-500 font-bold uppercase tracking-widest mb-2">구현방안확정</p>
+                        <div class="flex items-baseline gap-2">
+                            <h4 class="text-4xl font-bold">${confirmedTasks}건</h4>
+                            <span class="text-xs font-bold text-slate-500">→ 0건</span>
+                        </div>
+                        <p class="text-[10px] text-slate-600 mt-2 font-bold">전체 ${totalTasks}개 과제 중 ${Math.round(confirmedTasks/totalTasks*100)}%</p>
+                    </div>
+                </div>
+
+                <!-- Charts Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="glass p-8 rounded-[2.5rem] border border-slate-800">
+                        <h5 class="text-lg font-bold mb-6 flex items-center gap-2">
+                            <i data-lucide="bar-chart-2" class="w-5 h-5 text-primary"></i>
+                            진척률 비교 (W17 vs W18)
+                        </h5>
+                        <div class="h-72">
+                            <canvas id="progressComparisonChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="glass p-8 rounded-[2.5rem] border border-slate-800">
+                        <h5 class="text-lg font-bold mb-6 flex items-center gap-2">
+                            <i data-lucide="layers" class="w-5 h-5 text-accent"></i>
+                            부서별 단계 분포 (W18)
+                        </h5>
+                        <div class="h-72">
+                            <canvas id="deptStageChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-2 glass p-8 rounded-[2.5rem] border border-slate-800">
+                        <h5 class="text-lg font-bold mb-6 flex items-center gap-2">
+                            <i data-lucide="line-chart" class="w-5 h-5 text-green-500"></i>
+                            부서별 과제 수 및 평균 진척도
+                        </h5>
+                        <div class="h-80">
+                            <canvas id="deptChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top 5 Progress Increase -->
+                <div class="glass p-8 rounded-[2.5rem] border border-slate-800">
+                    <h5 class="text-lg font-bold mb-6 flex items-center gap-2">
+                        <i data-lucide="trending-up" class="w-5 h-5 text-green-500"></i>
+                        진척률 상승 Top 5
+                    </h5>
+                    <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                        ${cleanData
+                            .sort((a, b) => b.diff - a.diff)
+                            .slice(0, 5)
+                            .map((t, idx) => `
+                                <div class="bg-slate-900/50 p-6 rounded-2xl border border-slate-800 relative overflow-hidden group hover:border-primary/50 transition-all">
+                                    <div class="absolute top-2 right-2 text-primary/10 group-hover:text-primary/20 transition-colors">
+                                        <i data-lucide="award" class="w-12 h-12"></i>
+                                    </div>
+                                    <div class="text-[10px] font-bold text-slate-500 mb-2">RANK ${idx + 1}</div>
+                                    <div class="text-sm font-bold text-textPrimary truncate mb-4">${t.과제명 || 'Untitled'}</div>
+                                    <div class="flex items-center justify-between">
+                                        <div class="text-2xl font-bold text-green-500">${t.cur}%</div>
+                                        <div class="text-xs font-bold text-green-500">↑ ${t.diff}%</div>
+                                    </div>
+                                    <div class="mt-2 text-[10px] text-slate-500 font-medium">${t.부서명 || 'N/A'} / ${t.displayManager}</div>
+                                </div>
+                            `).join('')}
+                    </div>
+                </div>
+
+                <!-- Detail Data Table -->
+                <div class="glass rounded-[2.5rem] border border-slate-800 overflow-hidden shadow-2xl">
+                    <div class="p-8 border-b border-slate-800 bg-slate-900/30 flex justify-between items-center">
+                        <h5 class="text-xl font-bold">전체 과제 상세 현황</h5>
+                        <div class="flex items-center gap-4">
+                            <select id="table-dept-filter" onchange="filterTaskTable()" class="bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-primary">
+                                <option value="all">전체 부서</option>
+                                ${[...new Set(taskData.map(t => t.부서명))].sort().map(d => `<option value="${d}">${d}</option>`).join('')}
+                            </select>
+                            <div class="text-xs text-slate-500 font-medium">Total ${totalTasks} items</div>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead>
+                                <tr class="bg-slate-950/50 text-slate-500 font-bold border-b border-slate-800 uppercase tracking-widest">
+                                    <th class="px-8 py-5 w-12 text-center">#</th>
+                                    <th class="px-8 py-5">부서</th>
+                                    <th class="px-8 py-5">담당자</th>
+                                    <th class="px-8 py-5">과제명</th>
+                                    <th class="px-8 py-5">단계</th>
+                                    <th class="px-8 py-5">진척도 (W17)</th>
+                                    <th class="px-8 py-5">진척도 (W18)</th>
+                                    <th class="px-8 py-5 text-center">증감</th>
+                                </tr>
+                            </thead>
+                            <tbody id="task-table-body" class="divide-y divide-slate-800">
+                                ${renderTableRows(taskData)}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            container.appendChild(wrapper);
+            lucide.createIcons();
+            initReportCharts();
+        }
+
+        function renderTableRows(data) {
+            return data.map((t, idx) => {
+                const cur = parseInt(t.진척도) || 0;
+                const prev = parseInt(t.진척도_이전) || 0;
+                const diff = cur - prev;
+                
+                // Determine stage if missing
+                let stage = t.단계 || (cur === 100 ? '완료' : cur >= 80 ? '현업파일럿' : cur >= 60 ? '검증' : cur >= 20 ? '구현방안확정' : '계획');
+                
+                let stageClass = 'bg-slate-800 text-slate-400';
+                if (stage === '완료') stageClass = 'bg-green-500/20 text-green-400 border border-green-500/20';
+                else if (stage === '현업파일럿') stageClass = 'bg-accent/20 text-accent border border-accent/20';
+                else if (stage === '검증') stageClass = 'bg-primary/20 text-primary border border-primary/20';
+                else if (stage === '구현방안확정') stageClass = 'bg-orange-500/20 text-orange-400 border border-orange-500/20';
+
+                // Anonymize name if it's not already generalized
+                let displayManager = t.담당자 || '담당자';
+                if (displayManager.length <= 3 && !displayManager.startsWith('담당자')) {
+                    displayManager = `담당자 ${String.fromCharCode(65 + (idx % 26))}`;
+                }
+
+                return `
+                    <tr class="hover:bg-slate-800/30 transition-colors group task-row" data-dept="${t.부서명 || ''}">
+                        <td class="px-8 py-5 text-center text-slate-500 font-bold">${idx + 1}</td>
+                        <td class="px-8 py-5"><span class="px-3 py-1 bg-slate-800 rounded-lg font-bold">${t.부서명 || 'N/A'}</span></td>
+                        <td class="px-8 py-5 text-slate-400">${displayManager}</td>
+                        <td class="px-8 py-5 font-bold text-textPrimary group-hover:text-primary transition-colors">${t.과제명 || 'Untitled'}</td>
+                        <td class="px-8 py-5">
+                            <span class="px-3 py-1 rounded-lg text-[10px] font-bold ${stageClass}">${stage}</span>
+                        </td>
+                        <td class="px-8 py-5">
+                            <div class="flex items-center gap-3">
+                                <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden min-w-[80px]">
+                                    <div class="h-full bg-slate-600 opacity-60" style="width: ${prev}%"></div>
+                                </div>
+                                <span class="text-[10px] text-slate-500 w-8 text-right">${prev}%</span>
+                            </div>
+                        </td>
+                        <td class="px-8 py-5">
+                            <div class="flex items-center gap-3">
+                                <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden min-w-[80px]">
+                                    <div class="h-full ${cur === 100 ? 'bg-green-500' : 'bg-primary'}" style="width: ${cur}%"></div>
+                                </div>
+                                <span class="font-bold w-8 text-right">${cur}%</span>
+                            </div>
+                        </td>
+                        <td class="px-8 py-5 text-center">
+                            <span class="font-bold ${diff > 0 ? 'text-green-500' : diff < 0 ? 'text-red-500' : 'text-slate-600'}">
+                                ${diff > 0 ? '↑ ' + diff + '%' : diff < 0 ? '↓ ' + Math.abs(diff) + '%' : '-'}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function filterTaskTable() {
+            const dept = document.getElementById('table-dept-filter').value;
+            document.querySelectorAll('.task-row').forEach(row => {
+                if (dept === 'all' || row.dataset.dept === dept) {
+                    row.classList.remove('hidden');
+                } else {
+                    row.classList.add('hidden');
+                }
+            });
+        }
+
+        function initReportCharts() {
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#94a3b8', font: { size: 10, weight: '600' }, usePointStyle: true, padding: 15 }
+                    }
+                },
+                scales: {
+                    y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#64748b', font: { size: 10 } } },
+                    x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10 } } }
+                }
+            };
+
+            // 1. Progress Comparison Chart (Dynamic)
+            const stagesForComp = ['구현방안확정', '검증', '현업파일럿', '완료'];
+            const compData18 = stagesForComp.map(s => processedData.filter(t => t.stage === s).length);
+            // Mocking W17 data for comparison (e.g., 20% less than W18 or similar)
+            const compData17 = compData18.map(v => Math.max(0, Math.floor(v * 0.8)));
+
+            const comparisonCtx = document.getElementById('progressComparisonChart').getContext('2d');
+            new Chart(comparisonCtx, {
+                type: 'bar',
+                data: {
+                    labels: stagesForComp,
+                    datasets: [
+                        { label: 'W17', data: compData17, backgroundColor: 'rgba(148, 163, 184, 0.3)', borderRadius: 8 },
+                        { label: 'W18', data: compData18, backgroundColor: '#7c3aed', borderRadius: 8 }
+                    ]
+                },
+                options: chartOptions
+            });
+
+            // 2. Dept Stage Distribution
+            const deptStageData = {};
+            // Use same cleaning logic for charts
+            const processedData = taskData.map(t => {
+                const cur = parseInt(t.진척도) || 0;
+                const stage = t.단계 || (cur === 100 ? '완료' : cur >= 80 ? '현업파일럿' : cur >= 60 ? '검증' : cur >= 20 ? '구현방안확정' : '계획');
+                return { ...t, cur, stage };
+            });
+
+            processedData.forEach(item => {
+                const dept = item.부서명 || 'N/A';
+                const stage = item.stage;
+                
+                if (!deptStageData[dept]) deptStageData[dept] = { '구현방안확정': 0, '검증': 0, '현업파일럿': 0, '완료': 0, '계획': 0 };
+                if (deptStageData[dept][stage] !== undefined) {
+                    deptStageData[dept][stage]++;
+                } else {
+                    deptStageData[dept]['계획']++;
+                }
+            });
+            const deptLabels = Object.keys(deptStageData);
+
+            const deptStageCtx = document.getElementById('deptStageChart').getContext('2d');
+            new Chart(deptStageCtx, {
+                type: 'bar',
+                data: {
+                    labels: deptLabels,
+                    datasets: [
+                        { label: '구현방안확정', data: deptLabels.map(d => deptStageData[d]['구현방안확정']), backgroundColor: '#ed8936', borderRadius: 4, stack: 'stack0' },
+                        { label: '검증', data: deptLabels.map(d => deptStageData[d]['검증']), backgroundColor: '#60a5fa', borderRadius: 4, stack: 'stack0' },
+                        { label: '현업파일럿', data: deptLabels.map(d => deptStageData[d]['현업파일럿']), backgroundColor: '#a78bfa', borderRadius: 4, stack: 'stack0' },
+                        { label: '완료', data: deptLabels.map(d => deptStageData[d]['완료']), backgroundColor: '#48bb78', borderRadius: 4, stack: 'stack0' }
+                    ]
+                },
+                options: { ...chartOptions, scales: { ...chartOptions.scales, y: { ...chartOptions.scales.y, stacked: true, ticks: { stepSize: 1, precision: 0 } }, x: { ...chartOptions.scales.x, stacked: true } } }
+            });
+
+            // 3. Dept Comprehensive Chart
+            const deptStats = {};
+            processedData.forEach(item => {
+                const dept = item.부서명 || 'N/A';
+                const cur = item.cur;
+                const prev = parseInt(item.진척도_이전) || 0;
+                if (!deptStats[dept]) deptStats[dept] = { count: 0, sum45: 0, sum44: 0 };
+                deptStats[dept].count++;
+                deptStats[dept].sum45 += cur;
+                deptStats[dept].sum44 += prev;
+            });
+            const dLabels = Object.keys(deptStats);
+
+            const deptCtx = document.getElementById('deptChart').getContext('2d');
+            new Chart(deptCtx, {
+                data: {
+                    labels: dLabels,
+                    datasets: [
+                        { type: 'bar', label: '과제 수', data: dLabels.map(d => deptStats[d].count), backgroundColor: 'rgba(124, 58, 237, 0.2)', borderRadius: 6, yAxisID: 'y' },
+                        { type: 'line', label: 'W18 진척도 (%)', data: dLabels.map(d => Math.round(deptStats[d].sum45 / deptStats[d].count)), borderColor: '#7c3aed', borderWidth: 3, tension: 0.4, yAxisID: 'y1', pointRadius: 4, pointBackgroundColor: '#7c3aed' },
+                        { type: 'line', label: 'W17 진척도 (%)', data: dLabels.map(d => Math.round(deptStats[d].sum44 / deptStats[d].count)), borderColor: '#94a3b8', borderWidth: 2, borderDash: [5, 5], tension: 0.4, yAxisID: 'y1', pointRadius: 0 }
+                    ]
+                },
+                options: {
+                    ...chartOptions,
+                    scales: {
+                        y: { type: 'linear', position: 'left', max: 5, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#64748b' } },
+                        y1: { type: 'linear', position: 'right', max: 100, grid: { display: false }, ticks: { color: '#64748b' } },
+                        x: { grid: { display: false }, ticks: { color: '#64748b' } }
+                    }
+                }
+            });
+        }
+
+        async function handleExcelUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+
+                if (jsonData.length > 0) {
+                    // Map Excel columns to taskData structure
+                    taskData = jsonData.map(row => ({
+                        부서명: row['부서명'] || '',
+                        담당자: row['담당자'] || '',
+                        과제명: row['과제명'] || '',
+                        완료예정일정: row['완료예정일정'] || '',
+                        구현방안확정: row['구현방안확정'] || '',
+                        테스트중: row['테스트중'] || '',
+                        검증: row['검증'] || '',
+                        현업파일럿: row['현업파일럿'] || '',
+                        완료: row['완료'] || '',
+                        진척도: row['진척도'] || '0%',
+                        진척도_이전: row['진척도_이전'] || row['진척도'] || '0%',
+                        비고: row['비고'] || ''
+                    }));
+                    
+                    saveTaskData();
+                    await FirebaseManager.saveTaskData(taskData);
+                    showToast('엑셀 데이터가 성공적으로 업로드되었습니다.', 'success');
+                    renderTasks();
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // Removed resetTaskData as per user request to replace with Excel Upload
+
+        function exportToExcel() {
+            const worksheet = XLSX.utils.json_to_sheet(taskData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "AX_Tasks");
+            XLSX.writeFile(workbook, "AX_Progress_Report.xlsx");
+            showToast('엑셀 리포트가 다운로드되었습니다.', 'success');
+        }
+
         function renderPage(page) {
             const container = document.getElementById('page-container');
             container.innerHTML = '';
@@ -643,7 +1566,7 @@
                                 <span class="text-xs font-bold text-green-400">Stable</span>
                             </div>
                             <div>
-                                <p class="text-slate-400 text-sm font-medium">보안 건전성 점수</p>
+                                <p class="text-textSecondary text-sm font-medium">보안 건전성 점수</p>
                                 <h4 class="text-3xl font-bold">92<span class="text-sm text-slate-500 ml-1">/100</span></h4>
                             </div>
                         </div>
@@ -655,7 +1578,7 @@
                                 <span class="text-xs font-bold text-green-400">+12%</span>
                             </div>
                             <div>
-                                <p class="text-slate-400 text-sm font-medium">진행 중인 AX 과제</p>
+                                <p class="text-textSecondary text-sm font-medium">진행 중인 AX 과제</p>
                                 <h4 class="text-3xl font-bold">24</h4>
                             </div>
                         </div>
@@ -667,7 +1590,7 @@
                                 <span class="text-xs font-bold text-green-400">+5%</span>
                             </div>
                             <div>
-                                <p class="text-slate-400 text-sm font-medium">활성 AI 사용자</p>
+                                <p class="text-textSecondary text-sm font-medium">활성 AI 사용자</p>
                                 <h4 class="text-3xl font-bold">156</h4>
                             </div>
                         </div>
@@ -679,7 +1602,7 @@
                                 <span class="text-xs font-bold text-red-400">3 High</span>
                             </div>
                             <div>
-                                <p class="text-slate-400 text-sm font-medium">미결 보안 이슈</p>
+                                <p class="text-textSecondary text-sm font-medium">미결 보안 이슈</p>
                                 <h4 class="text-3xl font-bold">12<span class="text-sm text-slate-500 ml-1">건</span></h4>
                             </div>
                         </div>
@@ -690,7 +1613,7 @@
                             <div class="flex justify-between items-center mb-6">
                                 <h4 class="text-xl font-bold">월별 AX 활성화 현황</h4>
                                 <div class="flex gap-2">
-                                    <button class="px-3 py-1 bg-slate-800 rounded-lg text-xs font-medium border border-slate-700 text-slate-400">전체</button>
+                                    <button class="px-3 py-1 bg-slate-800 rounded-lg text-xs font-medium border border-slate-700 text-textSecondary">전체</button>
                                     <button class="px-3 py-1 bg-primary/20 rounded-lg text-xs font-medium border border-primary/30 text-primary">최근 6개월</button>
                                 </div>
                             </div>
@@ -737,125 +1660,66 @@
 
                 `;
             } else if (page === 'tasks') {
-                const totalTasks = taskData.length;
-                const completedTasks = taskData.filter(t => t.단계 === '완료').length;
-                const progressTasks = taskData.filter(t => t.단계 === '검증' || t.단계 === '현업파일럿').length;
-                const avgProgress = totalTasks > 0 ? (taskData.reduce((acc, t) => acc + (Number(t['진척도(W45)']) || 0), 0) / totalTasks).toFixed(1) : 0;
-
+                renderTasks();
+            } else if (page === 'learning') {
                 wrapper.innerHTML = `
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div class="space-y-8 animate-fade-in pb-20">
                         <div>
-                            <h3 class="text-2xl font-bold">AX 과제 트래커</h3>
-                            <p class="text-slate-400 text-sm">전사 AI 도입 과제의 진척 상황을 실시간으로 모니터링하세요.</p>
+                            <h3 class="text-3xl font-bold">학습자료</h3>
+                            <p class="text-textSecondary text-sm">AX 전환 및 AI 활용 역량 강화를 위한 학습 리소스</p>
                         </div>
-                        <div class="flex gap-3">
-                            <input type="file" id="excel-upload" class="hidden" accept=".xlsx, .xls" onchange="handleExcelUpload(event)">
-                            <button onclick="document.getElementById('excel-upload').click()" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl font-bold flex items-center gap-2 transition-all text-sm">
-                                <i data-lucide="file-up" class="w-4 h-4 text-primary"></i>
-                                엑셀 데이터 업로드
-                            </button>
-                            <button class="px-5 py-2.5 bg-primary hover:bg-primary/80 rounded-xl font-bold flex items-center gap-2 transition-all text-sm">
-                                <i data-lucide="plus" class="w-4 h-4"></i>
-                                새 과제 등록
-                            </button>
-                        </div>
-                    </div>
 
-                    <!-- KPI Cards -->
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        <div class="glass p-6 rounded-3xl border-l-4 border-primary">
-                            <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">평균 진척률</p>
-                            <div class="flex items-baseline gap-2">
-                                <h4 class="text-3xl font-bold text-slate-100">${avgProgress}%</h4>
-                                <span class="text-xs text-green-400 font-bold">↑ 2.4%</span>
-                            </div>
-                        </div>
-                        <div class="glass p-6 rounded-3xl border-l-4 border-green-500">
-                            <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">완료 과제</p>
-                            <h4 class="text-3xl font-bold text-slate-100">${completedTasks}건</h4>
-                            <p class="text-[10px] text-slate-500 mt-1">총 ${totalTasks}건 중 ${(completedTasks/totalTasks*100).toFixed(1)}%</p>
-                        </div>
-                        <div class="glass p-6 rounded-3xl border-l-4 border-accent">
-                            <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">검증/파일럿</p>
-                            <h4 class="text-3xl font-bold text-slate-100">${progressTasks}건</h4>
-                            <p class="text-[10px] text-slate-500 mt-1">집중 관리 필요</p>
-                        </div>
-                        <div class="glass p-6 rounded-3xl border-l-4 border-orange-500">
-                            <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">잔여 과제</p>
-                            <h4 class="text-3xl font-bold text-slate-100">${totalTasks - completedTasks}건</h4>
-                            <p class="text-[10px] text-slate-500 mt-1">우선순위 재조정 중</p>
-                        </div>
-                    </div>
-
-                    <!-- Charts Section -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div class="glass p-6 rounded-3xl">
-                            <h5 class="text-sm font-bold mb-4 flex items-center gap-2">
-                                <i data-lucide="bar-chart-3" class="w-4 h-4 text-primary"></i>
-                                부서별 진척도 현황
-                            </h5>
-                            <div class="h-64">
-                                <canvas id="task-chart-dept"></canvas>
-                            </div>
-                        </div>
-                        <div class="glass p-6 rounded-3xl">
-                            <h5 class="text-sm font-bold mb-4 flex items-center gap-2">
-                                <i data-lucide="pie-chart" class="w-4 h-4 text-accent"></i>
-                                단계별 과제 분포
-                            </h5>
-                            <div class="h-64">
-                                <canvas id="task-chart-stage"></canvas>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Kanban Board -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <!-- To Do -->
-                        <div class="space-y-4">
-                            <div class="flex items-center justify-between px-2">
-                                <div class="flex items-center gap-2">
-                                    <div class="w-2 h-2 rounded-full bg-slate-400"></div>
-                                    <span class="font-bold text-slate-300 uppercase text-xs tracking-widest">To Do / Plan</span>
-                                    <span class="px-2 py-0.5 bg-slate-800 rounded text-[10px] text-slate-500 font-bold">${taskData.filter(t => t.단계 === '구현방안확정').length}</span>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            ${[
+                                { title: 'AI 기초 및 프롬프트 엔지니어링', type: 'PDF', size: '2.4MB', icon: 'file-text', color: 'primary' },
+                                { title: '부서별 AX 과제 발굴 가이드', type: 'Excel', size: '1.2MB', icon: 'file-spreadsheet', color: 'green-500' },
+                                { title: '보안 가이드라인 및 서약 절차', type: 'PDF', size: '0.8MB', icon: 'shield', color: 'red-400' },
+                                { title: 'RAG 기반 사내 지식 검색 시스템 활용법', type: 'Video', size: '15:20', icon: 'play-circle', color: 'accent' },
+                                { title: 'LLM API 연동 및 개발 가이드', type: 'Markdown', size: '45KB', icon: 'code-2', color: 'orange-400' },
+                                { title: 'AI 윤리 및 저작권 준수 사항', type: 'PDF', size: '1.5MB', icon: 'info', color: 'blue-400' }
+                            ].map(item => `
+                                <div class="glass p-6 rounded-3xl group hover:border-${item.color}/50 transition-all cursor-pointer">
+                                    <div class="flex justify-between items-start mb-6">
+                                        <div class="p-4 bg-${item.color}/10 rounded-2xl text-${item.color}">
+                                            <i data-lucide="${item.icon}" class="w-8 h-8"></i>
+                                        </div>
+                                        <span class="px-3 py-1 bg-slate-800 rounded-lg text-[10px] font-bold text-slate-500 uppercase">${item.type}</span>
+                                    </div>
+                                    <h5 class="text-lg font-bold mb-2 group-hover:text-primary transition-colors">${item.title}</h5>
+                                    <div class="flex items-center justify-between mt-6">
+                                        <span class="text-xs text-slate-500 font-medium">${item.size}</span>
+                                        <button class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-800 hover:bg-slate-700 transition-colors">
+                                            <i data-lucide="download" class="w-4 h-4"></i>
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="space-y-4">
-                                ${taskData.filter(t => t.단계 === '구현방안확정').map(t => renderTaskCard(t.과제명, t.부서명 + ' | ' + t.담당자, 'Medium', 'W45: ' + t['진척도(W45)'] + '%')).join('')}
-                            </div>
+                            `).join('')}
                         </div>
 
-                        <!-- In Progress -->
-                        <div class="space-y-4">
-                            <div class="flex items-center justify-between px-2">
-                                <div class="flex items-center gap-2">
-                                    <div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
-                                    <span class="font-bold text-primary uppercase text-xs tracking-widest">In Progress / Pilot</span>
-                                    <span class="px-2 py-0.5 bg-primary/10 rounded text-[10px] text-primary font-bold">${taskData.filter(t => t.단계 === '검증' || t.단계 === '현업파일럿').length}</span>
-                                </div>
+                        <!-- Detailed List View -->
+                        <div class="glass rounded-[2.5rem] border border-slate-800 overflow-hidden">
+                            <div class="p-8 border-b border-slate-800 bg-slate-900/30">
+                                <h5 class="text-xl font-bold">최근 업데이트 자료</h5>
                             </div>
-                            <div class="space-y-4">
-                                ${taskData.filter(t => t.단계 === '검증' || t.단계 === '현업파일럿').map(t => renderTaskCard(t.과제명, t.부서명 + ' | ' + t.담당자, t.단계 === '현업파일럿' ? 'High' : 'Medium', 'W45: ' + t['진척도(W45)'] + '%')).join('')}
-                            </div>
-                        </div>
-
-                        <!-- Done -->
-                        <div class="space-y-4">
-                            <div class="flex items-center justify-between px-2">
-                                <div class="flex items-center gap-2">
-                                    <div class="w-2 h-2 rounded-full bg-green-500"></div>
-                                    <span class="font-bold text-green-400 uppercase text-xs tracking-widest">Completed</span>
-                                    <span class="px-2 py-0.5 bg-green-500/10 rounded text-[10px] text-green-500 font-bold">${taskData.filter(t => t.단계 === '완료').length}</span>
-                                </div>
-                            </div>
-                            <div class="space-y-4 opacity-80">
-                                ${taskData.filter(t => t.단계 === '완료').map(t => renderTaskCard(t.과제명, t.부서명 + ' | ' + t.담당자, 'Low', 'Completed', true)).join('')}
+                            <div class="divide-y divide-slate-800">
+                                ${['2024년 2분기 AI 기술 트렌드 리포트', '사내 헬프데스크 RAG 성능 개선 패치노트', '생성형 AI 보안 위협 대응 전략'].map(title => `
+                                    <div class="p-6 flex items-center justify-between hover:bg-slate-800/30 transition-colors">
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center text-slate-400">
+                                                <i data-lucide="file" class="w-5 h-5"></i>
+                                            </div>
+                                            <div>
+                                                <p class="font-bold text-sm">${title}</p>
+                                                <p class="text-[10px] text-slate-500">Update: 2024-04-25</p>
+                                            </div>
+                                        </div>
+                                        <button class="px-4 py-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg text-xs font-bold transition-all">Download</button>
+                                    </div>
+                                `).join('')}
                             </div>
                         </div>
                     </div>
                 `;
-                // Initialize charts after rendering
-                setTimeout(initTaskCharts, 0);
             } else if (page === 'helpdesk') {
                 wrapper.innerHTML = `
                     <div class="flex flex-col h-[calc(100vh-200px)] glass rounded-3xl overflow-hidden">
@@ -884,7 +1748,7 @@
                         <div class="p-6 bg-slate-800/30 border-t border-slate-800">
                             <div class="flex flex-wrap gap-2 mb-4">
                                 ${['보안 규정 알려줘', '근무 시간 규칙은?', '예산 신청 어떻게 해?'].map(q => `
-                                    <button onclick="quickQuery('${q}')" class="px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-full text-[11px] text-slate-400 hover:border-primary/50 hover:text-primary transition-all">${q}</button>
+                                    <button onclick="quickQuery('${q}')" class="px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-full text-[11px] text-textSecondary hover:border-primary/50 hover:text-primary transition-all">${q}</button>
                                 `).join('')}
                             </div>
                             <div class="relative">
@@ -913,7 +1777,7 @@
                                     <i data-lucide="plus" class="w-4 h-4"></i>
                                 </button>
                             </div>
-                            <p class="text-slate-400 text-sm mt-1">단계별 최적화된 프롬프트를 통해 AI 활용 능력을 극대화하세요.</p>
+                            <p class="text-textSecondary text-sm mt-1">단계별 최적화된 프롬프트를 통해 AI 활용 능력을 극대화하세요.</p>
                         </div>
                         <div class="relative w-full md:w-80">
                             <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
@@ -935,7 +1799,7 @@
                     ${currentState.templateTab === 'User' ? `
                         <div class="flex flex-wrap gap-2 pt-2">
                             ${['All', 'HR', 'Marketing', 'Dev', 'Legal', 'General'].map(cat => `
-                                <button onclick="filterTemplates('${cat}')" class="px-4 py-2 rounded-xl text-xs font-bold transition-all ${currentState.templateFilter === cat ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-slate-800/50 text-slate-400 hover:bg-slate-800 border border-slate-700/50'}">
+                                <button onclick="filterTemplates('${cat}')" class="px-4 py-2 rounded-xl text-xs font-bold transition-all ${currentState.templateFilter === cat ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-slate-800/50 text-textSecondary hover:bg-slate-800 border border-slate-700/50'}">
                                     ${cat === 'All' ? '전체' : cat}
                                 </button>
                             `).join('')}
@@ -958,8 +1822,8 @@
                                     </div>
                                 </div>
                                 <div class="flex-1">
-                                    <h5 class="font-bold text-lg mb-2 group-hover:text-primary transition-colors text-slate-100">${t.title}</h5>
-                                    <p class="text-xs text-slate-400 leading-relaxed line-clamp-3">${t.desc}</p>
+                                    <h5 class="font-bold text-lg mb-2 group-hover:text-primary transition-colors text-textPrimary">${t.title}</h5>
+                                    <p class="text-xs text-textSecondary leading-relaxed line-clamp-3">${t.desc}</p>
                                 </div>
                                 <div class="pt-4 border-t border-slate-800/50 flex gap-2">
                                     <button onclick="viewTemplate(${t.id})" class="flex-1 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-[11px] font-bold transition-all">상세보기</button>
@@ -974,7 +1838,7 @@
                                 <div class="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto text-slate-600">
                                     <i data-lucide="search-x" class="w-8 h-8"></i>
                                 </div>
-                                <p class="text-slate-400 font-medium">검색 결과와 일치하는 템플릿이 없습니다.</p>
+                                <p class="text-textSecondary font-medium">검색 결과와 일치하는 템플릿이 없습니다.</p>
                             </div>
                         `}
                     </div>
@@ -982,21 +1846,24 @@
             } else if (page === 'resource-models') {
                 wrapper.innerHTML = `
                     <div class="space-y-6">
-                        <h3 class="text-2xl font-bold">유료 모델 및 서비스 현황</h3>
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-2xl font-bold">유료 모델 및 서비스 현황</h3>
+                            <button onclick="openResourceModal('models')" class="px-4 py-2 bg-primary hover:bg-primary/80 text-white rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg shadow-primary/20">
+                                <i data-lucide="plus" class="w-4 h-4"></i> 모델 등록
+                            </button>
+                        </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            ${renderResourceCard('Gemini 1.5 Pro', 'Enterprise', 'Active', 'Google Cloud', 'text-primary')}
-                            ${renderResourceCard('GPT-4o', 'Team Plan', 'Active', 'OpenAI', 'text-green-400')}
-                            ${renderResourceCard('Claude 3.5 Sonnet', 'Pro', 'Pending', 'Anthropic', 'text-orange-400')}
+                            ${aiResources.models.map(m => renderResourceCard(m.id, m.name, m.plan, m.status, m.provider, 'text-primary')).join('')}
                         </div>
                         <div class="glass p-8 rounded-3xl">
                             <h4 class="text-lg font-bold mb-4">서비스별 비용 분석 (Monthly)</h4>
                             <div class="h-64 flex items-end gap-8 px-4">
-                                ${[60, 85, 45].map((h, i) => `
+                                ${aiResources.models.slice(0, 3).map((m, i) => `
                                     <div class="flex-1 flex flex-col items-center gap-2">
-                                        <div class="w-full bg-primary/20 rounded-t-xl relative overflow-hidden" style="height: ${h}%">
+                                        <div class="w-full bg-primary/20 rounded-t-xl relative overflow-hidden" style="height: ${[60, 85, 45][i]}%">
                                             <div class="absolute inset-x-0 bottom-0 bg-primary h-full opacity-60"></div>
                                         </div>
-                                        <span class="text-xs text-slate-400">${['Gemini', 'GPT-4', 'Claude'][i]}</span>
+                                        <span class="text-xs text-textSecondary">${m.name.split(' ')[0]}</span>
                                     </div>
                                 `).join('')}
                             </div>
@@ -1006,7 +1873,12 @@
             } else if (page === 'resource-users') {
                 wrapper.innerHTML = `
                     <div class="space-y-6">
-                        <h3 class="text-2xl font-bold">유료계정 사용자 관리</h3>
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-2xl font-bold">유료계정 사용자 관리</h3>
+                            <button onclick="openResourceModal('users')" class="px-4 py-2 bg-primary hover:bg-primary/80 text-white rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg shadow-primary/20">
+                                <i data-lucide="plus" class="w-4 h-4"></i> 사용자 등록
+                            </button>
+                        </div>
                         <div class="glass overflow-hidden rounded-3xl border border-slate-800">
                             <table class="w-full text-left border-collapse">
                                 <thead class="bg-slate-800/50">
@@ -1016,13 +1888,11 @@
                                         <th class="p-4 text-xs font-bold uppercase text-slate-500">할당 모델</th>
                                         <th class="p-4 text-xs font-bold uppercase text-slate-500">권한 레벨</th>
                                         <th class="p-4 text-xs font-bold uppercase text-slate-500">상태</th>
+                                        <th class="p-4 text-xs font-bold uppercase text-slate-500 text-right">관리</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-800">
-                                    ${renderUserRow('김철수', '마케팅팀', 'GPT-4o', 'User', 'Active')}
-                                    ${renderUserRow('이영희', '인사팀', 'Gemini 1.5 Pro', 'Manager', 'Active')}
-                                    ${renderUserRow('박지민', '개발팀', 'Claude 3.5', 'Admin', 'Active')}
-                                    ${renderUserRow('최동욱', '법무팀', 'Gemini 1.5 Pro', 'User', 'Inactive')}
+                                    ${aiResources.users.map(u => renderUserRow(u.id, u.name, u.dept, u.model, u.role, u.status)).join('')}
                                 </tbody>
                             </table>
                         </div>
@@ -1034,7 +1904,7 @@
                         <div class="flex justify-between items-end">
                             <div>
                                 <h3 class="text-2xl font-bold">AI 보안 자가진단 엔진 <span class="text-xs font-normal text-slate-500 ml-2">v2.0 (Reviewer logic)</span></h3>
-                                <p class="text-slate-400 text-sm">사내 보안 지침에 기반한 실시간 코드 및 프롬프트 보안 진단을 실행합니다.</p>
+                                <p class="text-textSecondary text-sm">사내 보안 지침에 기반한 실시간 코드 및 프롬프트 보안 진단을 실행합니다.</p>
                             </div>
                             <button onclick="clearDiagnosis()" class="text-xs text-slate-500 hover:text-white transition-colors flex items-center gap-1">
                                 <i data-lucide="refresh-cw" class="w-3 h-3"></i> 초기화
@@ -1081,7 +1951,7 @@
                                         </div>
                                     </div>
                                     <div id="score-display" class="text-right">
-                                        <span class="text-2xl font-bold text-slate-100">0</span>
+                                        <span class="text-2xl font-bold text-textPrimary">0</span>
                                         <span class="text-xs text-slate-500">/ 100</span>
                                     </div>
                                 </div>
@@ -1122,67 +1992,162 @@
             } else if (page === 'resource-infra') {
                 wrapper.innerHTML = `
                     <div class="space-y-6">
-                        <h3 class="text-2xl font-bold">Server/DB 현황</h3>
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-2xl font-bold">Server/DB 현황</h3>
+                            <button onclick="openResourceModal('infra')" class="px-4 py-2 bg-primary hover:bg-primary/80 text-white rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg shadow-primary/20">
+                                <i data-lucide="plus" class="w-4 h-4"></i> 인프라 등록
+                            </button>
+                        </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="glass p-6 rounded-3xl space-y-4">
-                                <div class="flex justify-between items-center">
-                                    <h4 class="font-bold flex items-center gap-2">
-                                        <i data-lucide="server" class="w-4 h-4 text-primary"></i>
-                                        GPU Inference Server
-                                    </h4>
-                                    <span class="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded font-bold uppercase tracking-wider">Stable</span>
-                                </div>
-                                <div class="space-y-2">
-                                    <div class="flex justify-between text-xs text-slate-400">
-                                        <span>GPU Utilization</span>
-                                        <span>78%</span>
+                            ${aiResources.infra.map(item => `
+                                <div class="glass p-6 rounded-3xl space-y-4 group hover:border-primary/50 transition-all">
+                                    <div class="flex justify-between items-center">
+                                        <h4 class="font-bold flex items-center gap-2">
+                                            <i data-lucide="${item.type === 'GPU' ? 'server' : 'database'}" class="w-4 h-4 ${item.type === 'GPU' ? 'text-primary' : 'text-accent'}"></i>
+                                            ${item.name}
+                                        </h4>
+                                        <div class="flex items-center gap-2">
+                                            <button onclick="openResourceModal('infra', ${item.id})" class="p-1.5 bg-slate-800 hover:bg-slate-700 rounded text-slate-500 hover:text-white transition-all opacity-0 group-hover:opacity-100">
+                                                <i data-lucide="edit-3" class="w-3 h-3"></i>
+                                            </button>
+                                            <button onclick="deleteResourceAction('infra', ${item.id})" class="p-1.5 bg-slate-800 hover:bg-red-500/20 rounded text-slate-500 hover:text-red-400 transition-all opacity-0 group-hover:opacity-100">
+                                                <i data-lucide="trash-2" class="w-3 h-3"></i>
+                                            </button>
+                                            <span class="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded font-bold uppercase tracking-wider">${item.status}</span>
+                                        </div>
                                     </div>
-                                    <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
-                                        <div class="h-full bg-primary" style="width: 78%"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="glass p-6 rounded-3xl space-y-4">
-                                <div class="flex justify-between items-center">
-                                    <h4 class="font-bold flex items-center gap-2">
-                                        <i data-lucide="database" class="w-4 h-4 text-accent"></i>
-                                        Vector Database (Pinecone)
-                                    </h4>
-                                    <span class="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded font-bold uppercase tracking-wider">Stable</span>
-                                </div>
-                                <div class="space-y-2">
-                                    <div class="flex justify-between text-xs text-slate-400">
-                                        <span>Index Capacity</span>
-                                        <span>42%</span>
-                                    </div>
-                                    <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
-                                        <div class="h-full bg-accent" style="width: 42%"></div>
+                                    <div class="space-y-2">
+                                        <div class="flex justify-between text-xs text-textSecondary">
+                                            <span>Utilization / Capacity</span>
+                                            <span>${item.utilization}%</span>
+                                        </div>
+                                        <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                                            <div class="h-full bg-primary" style="width: ${item.utilization}%"></div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            `).join('')}
                         </div>
                     </div>
                 `;
             } else if (page === 'resource-urls') {
                 wrapper.innerHTML = `
                     <div class="space-y-6">
-                        <h3 class="text-2xl font-bold">접속가능 서비스 및 URL</h3>
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-2xl font-bold">접속가능 서비스 및 URL</h3>
+                            <button onclick="openResourceModal('urls')" class="px-4 py-2 bg-primary hover:bg-primary/80 text-white rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg shadow-primary/20">
+                                <i data-lucide="plus" class="w-4 h-4"></i> URL 등록
+                            </button>
+                        </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            ${renderUrlCard('Internal AI Lab', 'https://ai-lab.company.com', '연구용 내부 AI 도구 모음', 'Internal')}
-                            ${renderUrlCard('Gemini Studio', 'https://aistudio.google.com', 'Gemini API 키 관리 및 테스트', 'External')}
-                            ${renderUrlCard('AX Documentation', 'https://docs.ax.company.com', '전사 AX 가이드 및 보안 지침', 'Internal')}
+                            ${aiResources.urls.map(u => renderUrlCard(u.id, u.name, u.url, u.desc, u.type)).join('')}
                         </div>
                     </div>
                 `;
-            } else {
+            } else if (page === 'database') {
                 wrapper.innerHTML = `
-                    <div class="flex flex-col items-center justify-center h-[500px] text-center space-y-4">
-                        <div class="p-6 bg-slate-800 rounded-3xl">
-                            <i data-lucide="construction" class="w-12 h-12 text-slate-500"></i>
+                    <div class="space-y-8 animate-fade-in">
+                        <!-- Header & Search -->
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                            <div>
+                                <h3 class="text-2xl font-bold">베스트 과제 DB <span class="text-xs font-normal text-slate-500 ml-2">Hall of Fame</span></h3>
+                                <p class="text-textSecondary text-sm">사내에서 가장 높은 ROI를 기록한 AX 성공 사례 아카이브입니다.</p>
+                            </div>
+                            <button onclick="openBestTaskModal()" class="px-5 py-2.5 bg-primary hover:bg-primary/80 text-white rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg shadow-primary/20">
+                                <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                                성공 사례 등록
+                            </button>
                         </div>
-                        <h3 class="text-2xl font-bold">개발 중인 메뉴입니다</h3>
-                        <p class="text-slate-400">Phase 2 업데이트에서 만나보실 수 있습니다.</p>
-                        <button onclick="navigate('dashboard')" class="mt-4 px-6 py-3 bg-primary rounded-xl font-bold">대시보드로 돌아가기</button>
+
+                        <!-- Hall of Fame Banner -->
+                        ${bestTasks.filter(t => t.isFeatured).map(t => `
+                            <div class="relative overflow-hidden glass p-8 rounded-[2rem] border border-primary/30 bg-gradient-to-br from-primary/10 to-accent/5 group">
+                                <div class="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
+                                    <i data-lucide="award" class="w-40 h-40"></i>
+                                </div>
+                                <div class="relative z-10 space-y-4 max-w-2xl">
+                                    <div class="flex items-center gap-2 text-primary">
+                                        <i data-lucide="star" class="w-4 h-4 fill-primary"></i>
+                                        <span class="text-xs font-bold uppercase tracking-widest">Featured Best Practice</span>
+                                    </div>
+                                    <h4 class="text-3xl font-bold">${t.title}</h4>
+                                    <p class="text-textSecondary leading-relaxed">${t.desc}</p>
+                                    <div class="flex flex-wrap gap-6 pt-4">
+                                        <div class="flex flex-col">
+                                            <span class="text-[10px] text-slate-500 uppercase font-bold">ROI Impact</span>
+                                            <span class="text-xl font-bold text-green-400">${t.roi}</span>
+                                        </div>
+                                        <div class="flex flex-col border-l border-slate-700 pl-6">
+                                            <span class="text-[10px] text-slate-500 uppercase font-bold">Department</span>
+                                            <span class="text-xl font-bold">${t.dept}</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex gap-3 pt-4">
+                                        <button class="px-6 py-2.5 bg-slate-800 hover:bg-slate-700 rounded-xl text-sm font-bold transition-all border border-slate-700 flex items-center gap-2">
+                                            <i data-lucide="file-text" class="w-4 h-4"></i> 개발 가이드 보기
+                                        </button>
+                                        <button class="px-6 py-2.5 bg-primary/20 hover:bg-primary/30 text-primary rounded-xl text-sm font-bold transition-all border border-primary/30 flex items-center gap-2">
+                                            <i data-lucide="download" class="w-4 h-4"></i> 소스코드 다운로드
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+
+                        <!-- Filters & Grid -->
+                        <div class="space-y-6">
+                            <div class="flex items-center justify-between">
+                                <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                                    ${['All', 'Python', 'RAG', 'Automation', 'LLM', 'Marketing'].map(f => `
+                                        <button class="px-4 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap ${f === 'All' ? 'bg-primary text-white' : 'bg-slate-800 text-textSecondary hover:bg-slate-700 border border-slate-700'}">${f}</button>
+                                    `).join('')}
+                                </div>
+                                <div class="text-xs text-slate-500 font-medium">Total: ${bestTasks.length} Cases</div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                ${bestTasks.map(t => `
+                                    <div class="glass p-6 rounded-3xl border border-slate-800 hover:border-primary/30 transition-all group flex flex-col h-full relative overflow-hidden">
+                                        <div class="flex justify-between items-start mb-4">
+                                            <div class="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center text-primary group-hover:bg-primary/10 transition-colors">
+                                                <i data-lucide="${t.tags && t.tags.includes('RAG') ? 'brain-circuit' : t.tags && t.tags.includes('Automation') ? 'zap' : 'cpu'}" class="w-5 h-5"></i>
+                                            </div>
+                                            <div class="flex items-center gap-2">
+                                                <div class="flex items-center gap-3 text-slate-500 mr-2">
+                                                    <div class="flex items-center gap-1">
+                                                        <i data-lucide="thumbs-up" class="w-3.5 h-3.5"></i>
+                                                        <span class="text-[10px] font-bold">${t.likes || 0}</span>
+                                                    </div>
+                                                    <div class="flex items-center gap-1">
+                                                        <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
+                                                        <span class="text-[10px] font-bold">${t.comments || 0}</span>
+                                                    </div>
+                                                </div>
+                                                <div class="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <button onclick="openBestTaskModal(${t.id})" class="p-1.5 bg-slate-800 hover:bg-slate-700 rounded text-slate-500 hover:text-white transition-all">
+                                                        <i data-lucide="edit-3" class="w-3 h-3"></i>
+                                                    </button>
+                                                    <button onclick="deleteBestTaskAction(${t.id})" class="p-1.5 bg-slate-800 hover:bg-red-500/20 rounded text-slate-500 hover:text-red-400 transition-all">
+                                                        <i data-lucide="trash-2" class="w-3 h-3"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <h5 class="font-bold text-textPrimary mb-2 group-hover:text-primary transition-colors">${t.title}</h5>
+                                        <p class="text-xs text-textSecondary line-clamp-2 mb-4 flex-1">${t.desc}</p>
+                                        <div class="flex flex-wrap gap-1.5 mb-4">
+                                            ${t.tags ? t.tags.map(tag => `
+                                                <span class="px-2 py-0.5 bg-slate-800/50 text-slate-500 rounded text-[9px] font-bold uppercase tracking-wider border border-slate-700/50">${tag}</span>
+                                            `).join('') : ''}
+                                        </div>
+                                        <div class="pt-4 border-t border-slate-800/50 flex justify-between items-center mt-auto">
+                                            <span class="text-[10px] font-bold text-green-500 bg-green-500/10 px-2 py-0.5 rounded">ROI ${t.roi}</span>
+                                            <button onclick="viewBestTaskDetail(${t.id})" class="text-[10px] font-bold text-primary hover:underline">자산 상세 보기 →</button>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
                     </div>
                 `;
             }
@@ -1196,9 +2161,9 @@
                 'High': 'text-orange-400 bg-orange-400/10',
                 'Medium': 'text-accent bg-accent/10',
                 'Critical': 'text-red-400 bg-red-400/10',
-                'Low': 'text-slate-400 bg-slate-400/10'
+                'Low': 'text-textSecondary bg-slate-400/10'
             };
-            const pColor = priorityColors[priority] || 'text-slate-400 bg-slate-400/10';
+            const pColor = priorityColors[priority] || 'text-textSecondary bg-slate-400/10';
             
             return `
                 <div class="glass p-5 rounded-2xl border border-slate-700/50 hover:border-primary/50 transition-all cursor-grab group">
@@ -1209,8 +2174,8 @@
                             <div class="w-6 h-6 rounded-full bg-accent/30 border border-slate-700 text-[8px] flex items-center justify-center font-bold">+2</div>
                         </div>
                     </div>
-                    <h5 class="font-bold text-slate-100 group-hover:text-primary transition-colors">${title}</h5>
-                    <p class="text-xs text-slate-400 mt-1 line-clamp-2">${desc}</p>
+                    <h5 class="font-bold text-textPrimary group-hover:text-primary transition-colors">${title}</h5>
+                    <p class="text-xs text-textSecondary mt-1 line-clamp-2">${desc}</p>
                     <div class="mt-4 pt-4 border-t border-slate-800/50 flex justify-between items-center">
                         <div class="flex items-center gap-1.5 text-slate-500">
                             <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
@@ -1320,14 +2285,22 @@
             }
         }
 
-        function renderResourceCard(name, plan, status, provider, colorClass) {
+        function renderResourceCard(id, name, plan, status, provider, colorClass) {
             return `
-                <div class="glass p-6 rounded-3xl space-y-4">
+                <div class="glass p-6 rounded-3xl space-y-4 group hover:border-primary/50 transition-all">
                     <div class="flex justify-between items-start">
                         <div class="p-3 bg-slate-800 rounded-2xl ${colorClass}">
                             <i data-lucide="cpu" class="w-6 h-6"></i>
                         </div>
-                        <span class="text-[10px] font-bold uppercase tracking-widest px-2 py-1 bg-slate-800 rounded border border-slate-700">${provider}</span>
+                        <div class="flex items-center gap-2">
+                            <button onclick="openResourceModal('models', ${id})" class="p-1.5 bg-slate-800 hover:bg-slate-700 rounded text-slate-500 hover:text-white transition-all opacity-0 group-hover:opacity-100">
+                                <i data-lucide="edit-3" class="w-3 h-3"></i>
+                            </button>
+                            <button onclick="deleteResourceAction('models', ${id})" class="p-1.5 bg-slate-800 hover:bg-red-500/20 rounded text-slate-500 hover:text-red-400 transition-all opacity-0 group-hover:opacity-100">
+                                <i data-lucide="trash-2" class="w-3 h-3"></i>
+                            </button>
+                            <span class="text-[10px] font-bold uppercase tracking-widest px-2 py-1 bg-slate-800 rounded border border-slate-700">${provider}</span>
+                        </div>
                     </div>
                     <div>
                         <h4 class="font-bold text-lg">${name}</h4>
@@ -1341,17 +2314,17 @@
             `;
         }
 
-        function renderUserRow(name, dept, model, role, status) {
+        function renderUserRow(id, name, dept, model, role, status) {
             return `
-                <tr class="hover:bg-slate-800/30 transition-colors">
+                <tr class="hover:bg-slate-800/30 transition-colors group">
                     <td class="p-4 flex items-center gap-3">
                         <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-[10px] font-bold">${name[0]}</div>
-                        <span class="text-sm font-medium text-slate-100">${name}</span>
+                        <span class="text-sm font-medium text-textPrimary">${name}</span>
                     </td>
-                    <td class="p-4 text-sm text-slate-400">${dept}</td>
+                    <td class="p-4 text-sm text-textSecondary">${dept}</td>
                     <td class="p-4 text-sm text-slate-300">${model}</td>
                     <td class="p-4">
-                        <span class="px-2 py-1 rounded-lg text-[10px] font-bold bg-slate-800 text-slate-400">${role}</span>
+                        <span class="px-2 py-1 rounded-lg text-[10px] font-bold bg-slate-800 text-textSecondary">${role}</span>
                     </td>
                     <td class="p-4 text-sm">
                         <div class="flex items-center gap-2 ${status === 'Active' ? 'text-green-400' : 'text-slate-500'}">
@@ -1359,26 +2332,434 @@
                             ${status}
                         </div>
                     </td>
+                    <td class="p-4 text-right">
+                        <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="openResourceModal('users', ${id})" class="p-1.5 bg-slate-800 hover:bg-slate-700 rounded text-slate-500 hover:text-white transition-all">
+                                <i data-lucide="edit-3" class="w-3 h-3"></i>
+                            </button>
+                            <button onclick="deleteResourceAction('users', ${id})" class="p-1.5 bg-slate-800 hover:bg-red-500/20 rounded text-slate-500 hover:text-red-400 transition-all">
+                                <i data-lucide="trash-2" class="w-3 h-3"></i>
+                            </button>
+                        </div>
+                    </td>
                 </tr>
             `;
         }
 
-        function renderUrlCard(name, url, desc, type) {
+        function renderUrlCard(id, name, url, desc, type) {
             return `
                 <div class="glass p-6 rounded-3xl space-y-4 hover:border-primary/50 transition-all group">
                     <div class="flex justify-between items-start">
                         <div class="p-3 bg-primary/10 rounded-2xl text-primary">
                             <i data-lucide="link" class="w-5 h-5"></i>
                         </div>
-                        <span class="text-[10px] font-bold uppercase tracking-widest px-2 py-1 ${type === 'Internal' ? 'bg-accent/10 text-accent' : 'bg-orange-500/10 text-orange-400'} rounded">${type}</span>
+                        <div class="flex items-center gap-2">
+                            <button onclick="openResourceModal('urls', ${id})" class="p-1.5 bg-slate-800 hover:bg-slate-700 rounded text-slate-500 hover:text-white transition-all opacity-0 group-hover:opacity-100">
+                                <i data-lucide="edit-3" class="w-3 h-3"></i>
+                            </button>
+                            <button onclick="deleteResourceAction('urls', ${id})" class="p-1.5 bg-slate-800 hover:bg-red-500/20 rounded text-slate-500 hover:text-red-400 transition-all opacity-0 group-hover:opacity-100">
+                                <i data-lucide="trash-2" class="w-3 h-3"></i>
+                            </button>
+                            <span class="text-[10px] font-bold uppercase tracking-widest px-2 py-1 ${type === 'Internal' ? 'bg-accent/10 text-accent' : 'bg-orange-500/10 text-orange-400'} rounded">${type}</span>
+                        </div>
                     </div>
                     <div>
                         <h4 class="font-bold text-lg group-hover:text-primary transition-colors">${name}</h4>
-                        <p class="text-xs text-slate-500 mt-1">${desc}</p>
+                        <p class="text-xs text-slate-500 mt-1 line-clamp-2">${desc}</p>
                     </div>
                     <a href="${url}" target="_blank" class="block text-xs text-primary font-bold hover:underline truncate">${url}</a>
                 </div>
             `;
+        }
+
+        // --- Resource CRUD Actions ---
+        function openResourceModal(type, id = null) {
+            currentState.editingResourceType = type;
+            currentState.editingResourceId = id;
+            
+            const modal = document.getElementById('resource-modal');
+            const title = document.getElementById('resource-modal-title');
+            const form = document.getElementById('resource-form-container');
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            let typeLabel = '';
+            if (type === 'models') typeLabel = 'AI 모델';
+            else if (type === 'users') typeLabel = '사용자';
+            else if (type === 'infra') typeLabel = '인프라';
+            else if (type === 'urls') typeLabel = 'URL';
+            
+            title.innerText = id ? `${typeLabel} 수정` : `${typeLabel} 신규 등록`;
+            
+            // Build form based on type
+            let formHtml = '';
+            let data = id ? aiResources[type].find(r => r.id === id) : {};
+
+            if (type === 'models') {
+                formHtml = `
+                    <div class="space-y-4">
+                        <input type="text" id="res-name" placeholder="모델명 (예: Gemini 1.5 Pro)" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary" value="${data.name || ''}">
+                        <input type="text" id="res-plan" placeholder="플랜 (예: Enterprise)" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary" value="${data.plan || ''}">
+                        <input type="text" id="res-provider" placeholder="제공사 (예: Google)" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary" value="${data.provider || ''}">
+                        <select id="res-status" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary">
+                            <option value="Active" ${data.status === 'Active' ? 'selected' : ''}>Active</option>
+                            <option value="Pending" ${data.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                            <option value="Inactive" ${data.status === 'Inactive' ? 'selected' : ''}>Inactive</option>
+                        </select>
+                    </div>
+                `;
+            } else if (type === 'users') {
+                formHtml = `
+                    <div class="space-y-4">
+                        <input type="text" id="res-name" placeholder="이름" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary" value="${data.name || ''}">
+                        <input type="text" id="res-dept" placeholder="부서" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary" value="${data.dept || ''}">
+                        <input type="text" id="res-model" placeholder="할당 모델" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary" value="${data.model || ''}">
+                        <select id="res-role" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary">
+                            <option value="User" ${data.role === 'User' ? 'selected' : ''}>User</option>
+                            <option value="Manager" ${data.role === 'Manager' ? 'selected' : ''}>Manager</option>
+                            <option value="Admin" ${data.role === 'Admin' ? 'selected' : ''}>Admin</option>
+                        </select>
+                        <select id="res-status" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary">
+                            <option value="Active" ${data.status === 'Active' ? 'selected' : ''}>Active</option>
+                            <option value="Inactive" ${data.status === 'Inactive' ? 'selected' : ''}>Inactive</option>
+                        </select>
+                    </div>
+                `;
+            } else if (type === 'infra') {
+                formHtml = `
+                    <div class="space-y-4">
+                        <input type="text" id="res-name" placeholder="장비/DB명" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary" value="${data.name || ''}">
+                        <input type="number" id="res-utilization" placeholder="가동률 (%)" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary" value="${data.utilization || ''}">
+                        <select id="res-type" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary">
+                            <option value="GPU" ${data.type === 'GPU' ? 'selected' : ''}>GPU Server</option>
+                            <option value="DB" ${data.type === 'DB' ? 'selected' : ''}>Database</option>
+                        </select>
+                        <select id="res-status" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary">
+                            <option value="Stable" ${data.status === 'Stable' ? 'selected' : ''}>Stable</option>
+                            <option value="Critical" ${data.status === 'Critical' ? 'selected' : ''}>Critical</option>
+                        </select>
+                    </div>
+                `;
+            } else if (type === 'urls') {
+                formHtml = `
+                    <div class="space-y-4">
+                        <input type="text" id="res-name" placeholder="서비스명" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary" value="${data.name || ''}">
+                        <input type="text" id="res-url" placeholder="URL (https://...)" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary" value="${data.url || ''}">
+                        <input type="text" id="res-desc" placeholder="설명" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary" value="${data.desc || ''}">
+                        <select id="res-type" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary">
+                            <option value="Internal" ${data.type === 'Internal' ? 'selected' : ''}>Internal</option>
+                            <option value="External" ${data.type === 'External' ? 'selected' : ''}>External</option>
+                        </select>
+                    </div>
+                `;
+            }
+            
+            form.innerHTML = formHtml;
+            lucide.createIcons();
+        }
+
+        function closeResourceModal() {
+            const modal = document.getElementById('resource-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            currentState.editingResourceId = null;
+            currentState.editingResourceType = null;
+        }
+
+        function saveResourceAction() {
+            const type = currentState.editingResourceType;
+            const id = currentState.editingResourceId;
+            
+            const nameInput = document.getElementById('res-name');
+            if (!nameInput || !nameInput.value.trim()) {
+                showToast('필수 정보를 입력해 주세요.', 'error');
+                return;
+            }
+
+            let newItem = { id: id || Date.now() };
+            
+            if (type === 'models') {
+                newItem = { ...newItem, name: nameInput.value, plan: document.getElementById('res-plan').value, provider: document.getElementById('res-provider').value, status: document.getElementById('res-status').value };
+            } else if (type === 'users') {
+                newItem = { ...newItem, name: nameInput.value, dept: document.getElementById('res-dept').value, model: document.getElementById('res-model').value, role: document.getElementById('res-role').value, status: document.getElementById('res-status').value };
+            } else if (type === 'infra') {
+                newItem = { ...newItem, name: nameInput.value, utilization: parseInt(document.getElementById('res-utilization').value) || 0, type: document.getElementById('res-type').value, status: document.getElementById('res-status').value };
+            } else if (type === 'urls') {
+                newItem = { ...newItem, name: nameInput.value, url: document.getElementById('res-url').value, desc: document.getElementById('res-desc').value, type: document.getElementById('res-type').value };
+            }
+
+            if (id) {
+                const idx = aiResources[type].findIndex(r => r.id === id);
+                aiResources[type][idx] = newItem;
+                showToast('수정되었습니다.', 'success');
+            } else {
+                aiResources[type].push(newItem);
+                showToast('등록되었습니다.', 'success');
+            }
+
+            saveAIResources(type, newItem);
+            closeResourceModal();
+            renderPage(`resource-${type}`);
+        }
+
+        function deleteResourceAction(type, id) {
+            const modal = document.getElementById('confirm-modal');
+            const yesBtn = document.getElementById('confirm-yes-btn');
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            yesBtn.onclick = () => {
+                aiResources[type] = aiResources[type].filter(r => r.id !== id);
+                saveAIResources();
+                FirebaseManager.deleteAIResource(type, id);
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                showToast('삭제되었습니다.', 'success');
+                renderPage(`resource-${type}`);
+            };
+        }
+
+        // --- Best Task CRUD Actions ---
+        let currentAttachments = [];
+
+        function openBestTaskModal(id = null) {
+            currentState.editingResourceId = id;
+            const modal = document.getElementById('best-task-modal');
+            const title = document.getElementById('best-task-modal-title');
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            title.innerText = id ? '성공 사례 상세 수정' : '성공 사례 신규 등록';
+            
+            if (id) {
+                const task = bestTasks.find(t => t.id === id);
+                document.getElementById('best-tpl-title').value = task.title;
+                document.getElementById('best-tpl-dept').value = task.dept;
+                document.getElementById('best-tpl-roi').value = task.roi;
+                document.getElementById('best-tpl-duration').value = task.duration || '';
+                document.getElementById('best-tpl-visibility').value = task.visibility || 'Public';
+                document.getElementById('best-tpl-models').value = task.models ? task.models.join(', ') : '';
+                document.getElementById('best-tpl-roi-detail').value = task.roiDetail || '';
+                document.getElementById('best-tpl-tags').value = task.tags ? task.tags.join(', ') : '';
+                document.getElementById('best-tpl-desc').value = task.desc;
+                document.getElementById('best-tpl-code').value = task.code || '';
+                document.getElementById('best-tpl-featured').checked = task.isFeatured;
+                currentAttachments = task.attachments ? [...task.attachments] : [];
+            } else {
+                document.getElementById('best-tpl-title').value = '';
+                document.getElementById('best-tpl-dept').value = '';
+                document.getElementById('best-tpl-roi').value = '';
+                document.getElementById('best-tpl-duration').value = '';
+                document.getElementById('best-tpl-visibility').value = 'Public';
+                document.getElementById('best-tpl-models').value = '';
+                document.getElementById('best-tpl-roi-detail').value = '';
+                document.getElementById('best-tpl-tags').value = '';
+                document.getElementById('best-tpl-desc').value = '';
+                document.getElementById('best-tpl-code').value = '';
+                document.getElementById('best-tpl-featured').checked = false;
+                currentAttachments = [];
+            }
+            renderAttachmentsList();
+        }
+
+        function renderAttachmentsList() {
+            const list = document.getElementById('best-tpl-attachments-list');
+            if (currentAttachments.length === 0) {
+                list.innerHTML = `<div class="text-[10px] text-slate-600 italic px-4 py-2 bg-slate-900/50 rounded-lg border border-dashed border-slate-800">등록된 첨부 문서가 없습니다.</div>`;
+            } else {
+                list.innerHTML = currentAttachments.map((att, idx) => `
+                    <div class="flex justify-between items-center bg-slate-900/80 px-4 py-2 rounded-xl border border-slate-800 group">
+                        <div class="flex items-center gap-2 overflow-hidden">
+                            <i data-lucide="file" class="w-3 h-3 text-slate-500"></i>
+                            <span class="text-xs text-slate-300 truncate">${att.name}</span>
+                        </div>
+                        <button onclick="removeAttachmentItem(${idx})" class="p-1 hover:text-red-400 transition-colors">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+                `).join('');
+            }
+            lucide.createIcons();
+        }
+
+        function addAttachmentItem() {
+            const nameInput = document.getElementById('best-tpl-attach-name');
+            if (!nameInput.value.trim()) return;
+            currentAttachments.push({ name: nameInput.value.trim(), url: '#' });
+            nameInput.value = '';
+            renderAttachmentsList();
+        }
+
+        function removeAttachmentItem(idx) {
+            currentAttachments.splice(idx, 1);
+            renderAttachmentsList();
+        }
+
+        function closeBestTaskModal() {
+            const modal = document.getElementById('best-task-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            currentState.editingResourceId = null;
+        }
+
+        function saveBestTaskAction() {
+            const id = currentState.editingResourceId;
+            const title = document.getElementById('best-tpl-title').value;
+            if (!title.trim()) {
+                showToast('과제명을 입력해 주세요.', 'error');
+                return;
+            }
+
+            const newItem = {
+                id: id || Date.now(),
+                title: title,
+                dept: document.getElementById('best-tpl-dept').value,
+                roi: document.getElementById('best-tpl-roi').value,
+                duration: document.getElementById('best-tpl-duration').value,
+                visibility: document.getElementById('best-tpl-visibility').value,
+                models: document.getElementById('best-tpl-models').value.split(',').map(s => s.trim()).filter(s => s),
+                roiDetail: document.getElementById('best-tpl-roi-detail').value,
+                tags: document.getElementById('best-tpl-tags').value.split(',').map(s => s.trim()).filter(s => s),
+                desc: document.getElementById('best-tpl-desc').value,
+                code: document.getElementById('best-tpl-code').value,
+                attachments: currentAttachments,
+                isFeatured: document.getElementById('best-tpl-featured').checked,
+                likes: id ? (bestTasks.find(t => t.id === id).likes || 0) : 0,
+                comments: id ? (bestTasks.find(t => t.id === id).comments || 0) : 0
+            };
+
+            if (id) {
+                const idx = bestTasks.findIndex(t => t.id === id);
+                bestTasks[idx] = newItem;
+                showToast('수정되었습니다.', 'success');
+            } else {
+                bestTasks.push(newItem);
+                showToast('등록되었습니다.', 'success');
+            }
+
+            saveBestTasks(newItem);
+            closeBestTaskModal();
+            renderPage('hall-of-fame');
+        }
+
+        // --- Best Task Detail View Actions ---
+        function viewBestTaskDetail(id) {
+            const task = bestTasks.find(t => t.id === id);
+            if (!task) return;
+
+            const modal = document.getElementById('best-task-detail-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            document.getElementById('detail-title').innerText = task.title;
+            document.getElementById('detail-dept').innerText = task.dept;
+            document.getElementById('detail-roi').innerText = `ROI ${task.roi}`;
+            document.getElementById('detail-desc').innerText = task.desc;
+            
+            // Add extra detailed info to the top or a special section
+            const descSection = document.getElementById('detail-desc').parentElement;
+            let detailMetaHtml = `
+                <div class="grid grid-cols-3 gap-4 mb-6 p-4 bg-slate-900/50 rounded-2xl border border-slate-800">
+                    <div class="space-y-1">
+                        <span class="text-[10px] text-slate-500 font-bold uppercase">사용 모델</span>
+                        <div class="text-xs font-bold text-slate-300">${task.models ? task.models.join(', ') : '-'}</div>
+                    </div>
+                    <div class="space-y-1 border-l border-slate-800 pl-4">
+                        <span class="text-[10px] text-slate-500 font-bold uppercase">개발 기간</span>
+                        <div class="text-xs font-bold text-slate-300">${task.duration || '-'}</div>
+                    </div>
+                    <div class="space-y-1 border-l border-slate-800 pl-4">
+                        <span class="text-[10px] text-slate-500 font-bold uppercase">공개 범위</span>
+                        <div class="text-xs font-bold text-primary">${task.visibility || 'Public'}</div>
+                    </div>
+                </div>
+                <div class="mb-6">
+                    <h5 class="text-xs font-bold text-green-500 uppercase tracking-widest mb-2">기대 효과 상세</h5>
+                    <p class="text-xs text-slate-400 italic">${task.roiDetail || '상세 성과 정보가 없습니다.'}</p>
+                </div>
+            `;
+            
+            // Clean up old extra meta if exists and insert new one
+            const oldMeta = descSection.querySelector('.grid-cols-3');
+            if (oldMeta) oldMeta.remove();
+            const oldRoiDetail = descSection.querySelector('h5.text-green-500');
+            if (oldRoiDetail) {
+                oldRoiDetail.nextElementSibling.remove();
+                oldRoiDetail.remove();
+            }
+            
+            document.getElementById('detail-desc').insertAdjacentHTML('beforebegin', detailMetaHtml);
+            
+            const codeElem = document.getElementById('detail-code');
+            const codeSection = document.getElementById('detail-code-section');
+            if (task.code) {
+                codeSection.classList.remove('hidden');
+                codeElem.innerText = task.code;
+            } else {
+                codeSection.classList.add('hidden');
+            }
+
+            const attachList = document.getElementById('detail-attachments-list');
+            const attachSection = document.getElementById('detail-attachments-section');
+            if (task.attachments && task.attachments.length > 0) {
+                attachSection.classList.remove('hidden');
+                attachList.innerHTML = task.attachments.map(att => `
+                    <div class="flex items-center justify-between p-3 bg-slate-900 rounded-xl border border-slate-800 group hover:border-primary/50 transition-all">
+                        <div class="flex items-center gap-3 overflow-hidden">
+                            <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center text-slate-500 group-hover:text-primary transition-colors">
+                                <i data-lucide="file" class="w-4 h-4"></i>
+                            </div>
+                            <span class="text-xs font-medium text-slate-300 truncate">${att.name}</span>
+                        </div>
+                        <button class="p-2 text-slate-500 hover:text-white transition-colors">
+                            <i data-lucide="download" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                `).join('');
+            } else {
+                attachSection.classList.add('hidden');
+            }
+
+            document.getElementById('detail-edit-btn').onclick = () => {
+                closeBestTaskDetail();
+                openBestTaskModal(id);
+            };
+
+            lucide.createIcons();
+        }
+
+        function closeBestTaskDetail() {
+            const modal = document.getElementById('best-task-detail-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function copyDetailCode() {
+            const code = document.getElementById('detail-code').innerText;
+            navigator.clipboard.writeText(code).then(() => {
+                showToast('코드가 클립보드에 복사되었습니다.', 'success');
+            });
+        }
+
+        function deleteBestTaskAction(id) {
+            const modal = document.getElementById('confirm-modal');
+            const yesBtn = document.getElementById('confirm-yes-btn');
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            yesBtn.onclick = () => {
+                bestTasks = bestTasks.filter(t => t.id !== id);
+                saveBestTasks();
+                FirebaseManager.deleteBestTask(id);
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                showToast('삭제되었습니다.', 'success');
+                renderPage('hall-of-fame');
+            };
         }
 
         function runDiagnosis() {
@@ -1434,7 +2815,7 @@
                     <div class="flex items-center justify-between p-2 rounded-lg ${isFail ? 'bg-red-500/5' : 'bg-slate-800/20'} border border-slate-800/50">
                         <div class="flex items-center gap-2">
                             <i data-lucide="${isFail ? 'x-circle' : 'check-circle'}" class="w-3.5 h-3.5 ${isFail ? 'text-red-500' : 'text-green-500'}"></i>
-                            <span class="text-[11px] ${isFail ? 'text-red-200' : 'text-slate-400'}">${item.item}</span>
+                            <span class="text-[11px] ${isFail ? 'text-red-200' : 'text-textSecondary'}">${item.item}</span>
                         </div>
                         <span class="text-[9px] font-bold px-1.5 py-0.5 rounded ${item.mandatory ? 'bg-red-500/10 text-red-400' : 'bg-slate-800 text-slate-500'}">${item.mandatory ? '필수' : '권고'}</span>
                     </div>
@@ -1446,7 +2827,7 @@
             issuesList.innerHTML = report.issues.length > 0 ? report.issues.map(i => `
                 <div class="p-3 bg-slate-900/50 rounded-xl border border-slate-800 space-y-2 border-l-2 border-l-${i.severity === 'critical' || i.severity === 'high' ? 'red-500' : 'orange-400'}">
                     <div class="flex justify-between items-center">
-                        <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-slate-800 text-slate-400">${i.category}</span>
+                        <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-slate-800 text-textSecondary">${i.category}</span>
                         <span class="text-[10px] font-bold uppercase ${i.severity === 'critical' || i.severity === 'high' ? 'text-red-400' : 'text-orange-400'}">${i.severity}</span>
                     </div>
                     <h6 class="text-xs font-bold text-slate-200">${i.title} <span class="text-slate-500 font-normal ml-2">(${i.count}건 발견)</span></h6>
@@ -1465,7 +2846,7 @@
             // Update Recommendations
             const recs = document.getElementById('recommendations');
             recs.innerHTML = report.recommendations.map(r => `
-                <li class="flex items-start gap-2 text-xs text-slate-400">
+                <li class="flex items-start gap-2 text-xs text-textSecondary">
                     <i data-lucide="info" class="w-3.5 h-3.5 text-primary shrink-0 mt-0.5"></i>
                     ${r}
                 </li>
@@ -1596,6 +2977,48 @@ const phone = "010-1234-5678";`;
             document.getElementById('diagnosis-empty').classList.remove('hidden');
         }
 
+        // Feature: Best Task Upload Modal (Mock)
+        function openUploadModal() {
+            const modal = document.getElementById('base-modal');
+            const title = document.getElementById('modal-title');
+            const body = document.getElementById('modal-body');
+            
+            title.innerText = '성공 사례 등록 (Hall of Fame)';
+            body.innerHTML = `
+                <div class="space-y-4">
+                    <p class="text-xs text-textSecondary">사내에 공유하고 자산화할 AX 과제 성공 사례를 업로드하세요.</p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="p-4 border-2 border-dashed border-slate-800 rounded-2xl flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-primary/50 transition-all group">
+                            <i data-lucide="cloud-upload" class="w-8 h-8 text-slate-600 group-hover:text-primary"></i>
+                            <span class="text-[10px] font-bold">내 PC에서 업로드</span>
+                        </div>
+                        <div class="p-4 border-2 border-dashed border-slate-800 rounded-2xl flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-primary/50 transition-all group">
+                            <i data-lucide="hard-drive" class="w-8 h-8 text-slate-600 group-hover:text-primary"></i>
+                            <span class="text-[10px] font-bold">Google/MS Drive</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">과제명</label>
+                        <input type="text" placeholder="과제 제목을 입력하세요" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">성과 요약 (ROI 등)</label>
+                        <textarea placeholder="절감 시간 및 주요 성과를 입력하세요" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-sm h-20 resize-none"></textarea>
+                    </div>
+                </div>
+            `;
+            
+            const actionBtn = body.parentElement.querySelector('button:last-child');
+            actionBtn.innerText = '등록하기';
+            actionBtn.onclick = () => {
+                showToast('성공 사례가 등록 대기 상태로 설정되었습니다 (관리자 승인 필요)', 'success');
+                closeModal('base-modal');
+            };
+            
+            openModal('base-modal');
+            lucide.createIcons();
+        }
+
         function renderChatMessages() {
             return currentState.chatHistory.map(chat => `
                 <div class="flex ${chat.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in">
@@ -1711,7 +3134,7 @@ const phone = "010-1234-5678";`;
             const depts = [...new Set(taskData.map(t => t.부서명))];
             const deptProgress = depts.map(d => {
                 const tasks = taskData.filter(t => t.부서명 === d);
-                return tasks.reduce((acc, t) => acc + (Number(t['진척도(W45)']) || 0), 0) / tasks.length;
+                return tasks.reduce((acc, t) => acc + (parseInt(t.진척도) || 0), 0) / tasks.length;
             });
 
             const ctxDept = document.getElementById('task-chart-dept');
@@ -1838,7 +3261,7 @@ const phone = "010-1234-5678";`;
             modal.classList.remove('flex');
         }
 
-        function saveTemplateAction() {
+        async function saveTemplateAction() {
             const id = document.getElementById('edit-id').value;
             const title = document.getElementById('modal-tpl-title').value;
             const desc = document.getElementById('modal-tpl-desc').value;
@@ -1851,15 +3274,17 @@ const phone = "010-1234-5678";`;
                 return;
             }
 
+            let targetTemplate;
             if (id) {
                 // Update
                 const idx = templates.findIndex(t => t.id == id);
                 templates[idx] = { ...templates[idx], title, desc, category, situation, prompt };
+                targetTemplate = templates[idx];
                 showToast('템플릿이 성공적으로 수정되었습니다.', 'success');
             } else {
                 // Create
                 const newId = Date.now();
-                templates.push({
+                targetTemplate = {
                     id: newId,
                     type: currentState.templateTab,
                     category,
@@ -1867,21 +3292,30 @@ const phone = "010-1234-5678";`;
                     desc,
                     prompt,
                     situation
-                });
+                };
+                templates.push(targetTemplate);
                 showToast('새 템플릿이 성공적으로 등록되었습니다.', 'success');
             }
 
+            // Persistence: Local + Firebase
             saveTemplates();
+            await FirebaseManager.saveTemplate(targetTemplate);
+            
             closeTemplateModal();
             renderPage('templates');
         }
+
         function deleteTemplateAction(id) {
             const modal = document.getElementById('confirm-modal');
             const yesBtn = document.getElementById('confirm-yes-btn');
             
-            yesBtn.onclick = () => {
+            yesBtn.onclick = async () => {
                 templates = templates.filter(t => t.id != id);
+                
+                // Persistence: Local + Firebase
                 saveTemplates();
+                await FirebaseManager.deleteTemplate(id);
+                
                 closeConfirmModal();
                 renderPage('templates');
                 showToast('템플릿이 삭제되었습니다.', 'success');
